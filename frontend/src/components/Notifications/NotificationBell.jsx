@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FiBell } from 'react-icons/fi';
+import { FiBell, FiCheck, FiX, FiLoader } from 'react-icons/fi';
 import { getNotifications, markAsRead, markAllAsRead } from '../services/notificationService';
+import api from '../services/api';
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [processing, setProcessing] = useState({});
 
   useEffect(() => {
     loadNotifications();
@@ -27,6 +29,29 @@ const NotificationBell = () => {
   const handleMarkAllAsRead = async () => {
     await markAllAsRead();
     loadNotifications();
+  };
+
+  const handleFriendRequestAction = async (notificationId, action) => {
+    if (!notificationId) return;
+    
+    setProcessing(prev => ({ ...prev, [notificationId]: action }));
+    try {
+      const friendshipId = notifications.find(n => n.id === notificationId)?.relatedId;
+      if (!friendshipId) return;
+
+      if (action === 'accept') {
+        await api.put(`/friendship/requests/${friendshipId}/accept`);
+      } else if (action === 'decline') {
+        await api.put(`/friendship/requests/${friendshipId}/decline`);
+      }
+      
+      // Mark notification as read and refresh
+      await handleMarkAsRead(notificationId);
+    } catch (error) {
+      alert('Erreur lors du traitement de la demande d\'ami');
+    } finally {
+      setProcessing(prev => ({ ...prev, [notificationId]: null }));
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -52,10 +77,46 @@ const NotificationBell = () => {
               <p className="p-3 text-gray-500 text-center">Aucune notification</p>
             ) : (
               notifications.map(notif => (
-                <div key={notif.id} className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${!notif.read ? 'bg-blue-50' : ''}`} onClick={() => handleMarkAsRead(notif.id)}>
-                  <p className="font-medium">{notif.title}</p>
-                  <p className="text-sm text-gray-600">{notif.message}</p>
-                  <p className="text-xs text-gray-400 mt-1">{new Date(notif.createdAt).toLocaleString()}</p>
+                <div key={notif.id} className={`p-3 border-b hover:bg-gray-50 ${!notif.read ? 'bg-blue-50' : ''}`}>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1" onClick={() => notif.type !== 'FRIEND_REQUEST' && handleMarkAsRead(notif.id)}>
+                      <p className="font-medium">{notif.title}</p>
+                      <p className="text-sm text-gray-600">{notif.message}</p>
+                      <p className="text-xs text-gray-400 mt-1">{new Date(notif.createdAt).toLocaleString()}</p>
+                    </div>
+                    {notif.type === 'FRIEND_REQUEST' && (
+                      <div className="flex items-center space-x-2 ml-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFriendRequestAction(notif.id, 'accept');
+                          }}
+                          disabled={processing[notif.id]}
+                          className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 disabled:bg-gray-300 transition-colors flex items-center gap-1"
+                        >
+                          {processing[notif.id] === 'accept' ? (
+                            <FiLoader className="animate-spin" size={10} />
+                          ) : (
+                            <FiCheck size={10} />
+                          )}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFriendRequestAction(notif.id, 'decline');
+                          }}
+                          disabled={processing[notif.id]}
+                          className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 disabled:bg-gray-300 transition-colors flex items-center gap-1"
+                        >
+                          {processing[notif.id] === 'decline' ? (
+                            <FiLoader className="animate-spin" size={10} />
+                          ) : (
+                            <FiX size={10} />
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))
             )}

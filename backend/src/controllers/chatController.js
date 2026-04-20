@@ -6,11 +6,18 @@ exports.getChats = async (req, res) => {
   const userId = req.user.id;
   const chats = await Chat.findAll({
     include: [
-      { model: User, through: { where: { userId } }, attributes: [] },
-      { model: User, attributes: ['id','fullName','email'] },
-      { model: Message, limit: 1, order: [['createdAt','DESC']] }
+      {
+        model: User,
+        through: { where: { userId } },
+        attributes: []
+      },
+      {
+        model: Message,
+        limit: 1,
+        order: [['createdAt', 'DESC']]
+      }
     ],
-    order: [[{ model: Message }, 'createdAt', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
   return res.json(chats);
 };
@@ -23,6 +30,29 @@ exports.createChat = async (req, res) => {
   const participants = [...new Set([req.user.id, ...participantIds])].map(userId => ({ chatId: chat.id, userId }));
   await ChatParticipant.bulkCreate(participants);
   return res.status(201).json(chat);
+};
+
+exports.getChatById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const chat = await Chat.findByPk(id, {
+      include: [
+        {
+          model: User,
+          through: { attributes: [] },
+          attributes: ['id', 'fullName', 'email']
+        }
+      ]
+    });
+
+    if (!chat) {
+      return res.status(404).json({ message: 'Conversation non trouvée' });
+    }
+
+    res.json(chat);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+  }
 };
 
 exports.getMessages = async (req, res) => {

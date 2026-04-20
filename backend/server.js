@@ -12,7 +12,7 @@ const requestRoutes = require('./src/routes/requestRoutes');
 const workflowRoutes = require('./src/routes/workflowRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
-
+const friendshipRoutes = require('./src/routes/friendshipRoutes');
 
 // Connexion DB
 connectDB();
@@ -35,6 +35,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chats', require('./src/routes/chatRoutes'));
+app.use('/api/friendship', friendshipRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

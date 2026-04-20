@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from '../Notifications/NotificationBell';
+import ChatIcon from '../Chat/ChatIcon';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -12,6 +13,7 @@ const Navbar = () => {
       </div>
       <div className="flex items-center space-x-4">
         <NotificationBell />
+        <ChatIcon />
         <span className="text-slate-600 text-sm">{user?.fullName} ({user?.role})</span>
         <button onClick={logout} className="btn btn-danger text-sm">Déconnexion</button>
       </div>
