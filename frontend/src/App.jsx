@@ -16,6 +16,8 @@ import UserManagement from './components/Admin/UserManagement';
 import OrgChart from './components/Admin/OrgChart';
 import WorkflowManagement from './components/Admin/WorkflowManagement';
 import Statistics from './components/Admin/Statistics';
+import ChatList from './components/Chat/ChatList';
+import ChatWindow from './components/Chat/ChatWindow';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -113,6 +115,22 @@ function AppRoutes() {
           <Layout><Statistics /></Layout>
         </ProtectedRoute>
       } />
+      <Route
+  path="/chats"
+  element={
+    <ProtectedRoute>
+      <Layout><ChatList /></Layout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/chats/:chatId"
+  element={
+    <ProtectedRoute>
+      <Layout><ChatWindow /></Layout>
+    </ProtectedRoute>
+  }
+/>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -11,6 +11,8 @@ const adminRoutes = require('./src/routes/adminRoutes');
 const requestRoutes = require('./src/routes/requestRoutes');
 const workflowRoutes = require('./src/routes/workflowRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
+const chatRoutes = require('./src/routes/chatRoutes');
+
 
 // Connexion DB
 connectDB();
@@ -32,6 +34,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/chats', require('./src/routes/chatRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
