@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth } from './components/context/AuthContext';
@@ -39,7 +39,7 @@ const PublicOnlyRoute = ({ children }) => {
   return children;
 };
 
-function AppRoutes() {
+const AppRoutes = () => {
   const { user } = useAuth();
   
   // Déterminer le dashboard selon le rôle
@@ -49,101 +49,125 @@ function AppRoutes() {
     return <ValidatorDashboard />;
   };
 
-  return (
-    <Routes>
-      <Route
-        path="/login"
-        element={
+  const router = createBrowserRouter(
+    [
+      {
+        path: '/login',
+        element: (
           <PublicOnlyRoute>
             <Login />
           </PublicOnlyRoute>
-        }
-      />
-      <Route
-        path="/register"
-        element={
+        ),
+      },
+      {
+        path: '/register',
+        element: (
           <PublicOnlyRoute>
             <Register />
           </PublicOnlyRoute>
-        }
-      />
-      
-      <Route path="/" element={
-        <ProtectedRoute>
-          <Layout>{getDashboard()}</Layout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/requests" element={
-        <ProtectedRoute>
-          <Layout><RequestList /></Layout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/requests/new" element={
-        <ProtectedRoute>
-          <Layout><RequestForm /></Layout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/requests/:id" element={
-        <ProtectedRoute>
-          <Layout><RequestDetail /></Layout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/admin/users" element={
-        <ProtectedRoute allowedRoles={['ADMIN']}>
-          <Layout><UserManagement /></Layout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/admin/orgchart" element={
-        <ProtectedRoute allowedRoles={['ADMIN']}>
-          <Layout><OrgChart /></Layout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/admin/workflows" element={
-        <ProtectedRoute allowedRoles={['ADMIN']}>
-          <Layout><WorkflowManagement /></Layout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/admin/stats" element={
-        <ProtectedRoute allowedRoles={['ADMIN']}>
-          <Layout><Statistics /></Layout>
-        </ProtectedRoute>
-      } />
-      <Route
-  path="/chats"
-  element={
-    <ProtectedRoute>
-      <Layout><ChatList /></Layout>
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/chats/:chatId"
-  element={
-    <ProtectedRoute>
-      <Layout><ChatWindow /></Layout>
-    </ProtectedRoute>
-  }
-/>
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        ),
+      },
+      {
+        path: '/',
+        element: (
+          <ProtectedRoute>
+            <Layout>{getDashboard()}</Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/requests',
+        element: (
+          <ProtectedRoute>
+            <Layout><RequestList /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/requests/new',
+        element: (
+          <ProtectedRoute>
+            <Layout><RequestForm /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/requests/:id',
+        element: (
+          <ProtectedRoute>
+            <Layout><RequestDetail /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/admin/users',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <Layout><UserManagement /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/admin/orgchart',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <Layout><OrgChart /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/admin/workflows',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <Layout><WorkflowManagement /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/admin/stats',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <Layout><Statistics /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/chats',
+        element: (
+          <ProtectedRoute>
+            <Layout><ChatList /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/chats/:chatId',
+        element: (
+          <ProtectedRoute>
+            <Layout><ChatWindow /></Layout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '*',
+        element: <Navigate to='/' replace />,
+      },
+    ],
+    {
+      future: {
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      },
+    }
   );
-}
+
+  return <RouterProvider router={router} />;
+};
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppRoutes />
-        <ToastContainer position="top-right" autoClose={3000} />
-      </Router>
+      <AppRoutes />
+      <ToastContainer position="top-right" autoClose={3000} />
     </AuthProvider>
   );
 }

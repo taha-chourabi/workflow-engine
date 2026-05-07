@@ -101,11 +101,31 @@ const ChatWindow = () => {
 
   const getRecipientName = () => {
     if (chatInfo?.isGroup) return chatInfo.name;
+    
+    // Chercher d'abord dans les participants du chat
     const recipient = getParticipants().find(p => String(p.id) !== currentUserId);
     if (recipient?.fullName) return recipient.fullName;
+    
+    // Chercher dans les messages envoyés par l'autre personne
     const otherMessage = messages.find(msg => String(msg.senderId) !== currentUserId);
     if (otherMessage?.User?.fullName) return otherMessage.User.fullName;
-    return chatInfo?.name || 'Conversation privée';
+    
+    // Utiliser le nom du chat si disponible
+    if (chatInfo?.name && chatInfo.name !== 'Conversation privée') return chatInfo.name;
+    
+    // Extraire le nom de l'email si disponible
+    if (recipient?.email) {
+      const emailName = recipient.email.split('@')[0];
+      return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+    }
+    
+    if (otherMessage?.User?.email) {
+      const emailName = otherMessage.User.email.split('@')[0];
+      return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+    }
+    
+    // Dernier recours - utiliser un ID générique
+    return 'Utilisateur';
   };
 
   const getRecipientEmail = () => {

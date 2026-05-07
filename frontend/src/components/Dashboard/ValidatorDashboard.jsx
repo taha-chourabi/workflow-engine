@@ -51,35 +51,61 @@ const ValidatorDashboard = () => {
         ))}
       </div>
 
-      <div className="card dashboard-card">
-        <h2 className="font-bold mb-4">Demandes en attente de votre action</h2>
+      <div className="table-container">
+        <div className="table-header">
+          <div>
+            <h2 className="table-title">Demandes en attente de validation</h2>
+          </div>
+          <div className="table-stats">
+            <div className="table-stats-item">
+              <span className="table-stats-icon"></span>
+              <span>{pendingForMe.length} demande(s)</span>
+            </div>
+          </div>
+        </div>
         {pendingForMe.length === 0 ? (
-          <p className="text-slate-500">Aucune demande en attente.</p>
+          <div className="text-center py-8">
+            <p className="text-gray-500 text-lg"> Aucune demande en attente</p>
+            <p className="text-gray-400 text-sm mt-2">Toutes vos validations sont à jour</p>
+          </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Référence</th>
-                <th>Type</th>
-                <th>Demandeur</th>
-                <th>Date</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendingForMe.map((req) => (
-                <tr key={req.id}>
-                  <td>{req.reference}</td>
-                  <td>{req.workflowType}</td>
-                  <td>{req.creator?.fullName || '-'}</td>
-                  <td>{new Date(req.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <Link to={`/requests/${req.id}`} className="text-blue-600">Traiter</Link>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="professional-table">
+              <thead>
+                <tr>
+                  <th>Référence</th>
+                  <th>Type de processus</th>
+                  <th>Demandeur</th>
+                  <th>Date de création</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {pendingForMe.map((req) => (
+                  <tr key={req.id}>
+                    <td className="font-mono font-semibold text-blue-700">{req.reference}</td>
+                    <td className="font-medium text-gray-900">{req.workflowType}</td>
+                    <td className="text-gray-700">{req.creator?.fullName || 'N/A'}</td>
+                    <td className="text-gray-600">
+                      {new Date(req.createdAt).toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })}
+                    </td>
+                    <td className="action-cell">
+                      <Link
+                        to={`/requests/${req.id}`}
+                        className="action-btn action-btn-primary"
+                      >
+                        🔍 Traiter
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

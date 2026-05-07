@@ -2,6 +2,8 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from '../Notifications/NotificationBell';
 import ChatIcon from '../Chat/ChatIcon';
+import logo from '../../assets/sotacib-logo.jpg';
+import workflowLogo from '../../assets/logo.png';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -9,12 +11,16 @@ const Navbar = () => {
   return (
     <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-cyan-700 px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-40 shadow-2xl shadow-slate-900/20 backdrop-blur-xl border-b border-white/10">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-3xl bg-white/15 border border-white/20 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-slate-900/30">
-          S
+        <div className="grid grid-cols-2 gap-3">
+          <div className="w-16 h-16 rounded-3xl bg-white/15 border border-white/20 flex items-center justify-center shadow-lg shadow-slate-900/20 overflow-hidden">
+            <img src={logo} alt="SOTACIB" className="h-full w-full object-contain" />
+          </div>
+          <div className="w-16 h-16 rounded-3xl bg-white/15 border border-white/20 flex items-center justify-center shadow-lg shadow-slate-900/20 overflow-hidden">
+            <img src={workflowLogo} alt="Workflow" className="h-full w-full object-contain" />
+          </div>
         </div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">SOTACIB Workflow</h1>
-          <p className="text-sm text-slate-200/90">Pilotage des demandes, users et workflows</p>
         </div>
       </div>
 
