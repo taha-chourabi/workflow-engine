@@ -114,6 +114,42 @@ const RequestDetail = () => {
     return `${process.env.REACT_APP_UPLOADS_URL}/pdfs/${filename}`;
   };
 
+  const renderFieldValue = (value) => {
+    if (value === null || value === undefined || value === '') {
+      return <span className="text-gray-500">-</span>;
+    }
+    if (Array.isArray(value)) {
+      return (
+        <div className="space-y-2">
+          {value.length === 0 ? (
+            <span className="text-gray-500">Aucun élément</span>
+          ) : (
+            value.map((item, index) => (
+              <div key={index} className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                {typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}
+              </div>
+            ))
+          )}
+        </div>
+      );
+    }
+    if (typeof value === 'object') {
+      return (
+        <div className="space-y-2 text-sm text-slate-700">
+          {Object.entries(value).map(([key, nestedValue]) => (
+            <div key={key} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs text-slate-500 uppercase tracking-[0.12em]">{key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}</p>
+              <p>{String(nestedValue)}</p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return <span className="text-slate-800 font-medium">{String(value)}</span>;
+  };
+
+  const dataEntries = Object.entries(request?.data || {});
+
   return (
     <div className="max-w-4xl mx-auto">
       {request && (
@@ -125,12 +161,39 @@ const RequestDetail = () => {
 
           <div className="card mb-6">
             <h2 className="font-bold mb-4">Informations</h2>
-            <p><strong>Type:</strong> {request.workflowType}</p>
-            <p><strong>Créée par:</strong> {request.creator?.fullName}</p>
-            <p><strong>Date:</strong> {new Date(request.createdAt).toLocaleString()}</p>
-            <hr className="my-4" />
-            <h3 className="font-semibold mb-2">Données saisies</h3>
-            <pre className="bg-gray-100 p-2 rounded">{JSON.stringify(request.data, null, 2)}</pre>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Type de demande</p>
+                <p className="mt-2 font-semibold text-slate-900">{request.workflowType}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Statut actuel</p>
+                <p className="mt-2 font-semibold text-slate-900">{request.status}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Créée par</p>
+                <p className="mt-2 font-semibold text-slate-900">{request.creator?.fullName || '-'}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Assignée à</p>
+                <p className="mt-2 font-semibold text-slate-900">{request.assignee?.fullName || request.assignedTo || '-'}</p>
+              </div>
+            </div>
+            <div className="mt-6">
+              <h3 className="font-semibold mb-3">Données saisies</h3>
+              {dataEntries.length === 0 ? (
+                <p className="text-gray-600">Aucune donnée saisie.</p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {dataEntries.map(([key, value]) => (
+                    <div key={key} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm text-slate-500">{getFieldLabel(key)}</p>
+                      <div className="mt-2">{renderFieldValue(value)}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="card mb-6">

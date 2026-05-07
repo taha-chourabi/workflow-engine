@@ -288,9 +288,23 @@ const RequestForm = () => {
           <label>Pièces jointes</label>
           <input type="file" multiple onChange={handleFileChange} />
           {normalize(selectedWorkflow).includes('client') && (
-            <p className="text-sm text-gray-500 mt-1">Documents recommandes: Patente, RC, Attestation, Agrement CEPEX.</p>
+            <p className="text-sm text-gray-500 mt-1">Documents recommandés: Patente, RC, Attestation, Agrément CEPEX.</p>
           )}
         </div>
+
+        {Object.keys(formData).length > 0 && (
+          <div className="card bg-slate-50 border-slate-200">
+            <h2 className="font-bold mb-4">Aperçu des informations saisies</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {Object.entries(formData).map(([field, value]) => (
+                <div key={field} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-sm text-slate-500">{field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}</p>
+                  <p className="mt-2 text-slate-900">{Array.isArray(value) ? value.join(', ') : String(value)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? 'Envoi...' : 'Créer et soumettre'}

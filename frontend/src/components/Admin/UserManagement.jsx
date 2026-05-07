@@ -100,13 +100,12 @@ const UserManagement = () => {
   const pendingCount = pendingUsers.length;
 
   return (
-    <div>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <div className="dashboard-header mb-6">
-        <h1 className="text-2xl font-bold">Gestion des utilisateurs</h1>
-        <p className="dashboard-subtitle">Validation des inscriptions et supervision de tous les comptes</p>
+        <h1 className="text-3xl font-bold">Gestion des utilisateurs</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="dash-stat-card dash-stat-violet">
           <h3 className="dash-stat-title">Inscriptions en attente</h3>
           <p className="dash-stat-value">{pendingCount}</p>
@@ -121,8 +120,12 @@ const UserManagement = () => {
         </div>
       </div>
 
-      <div className="card dashboard-card">
-        <h2 className="font-bold mb-4">Inscriptions en attente</h2>
+      <div className="card dashboard-card table-card">
+        <div className="card-header">
+          <div>
+            <h2 className="card-title">Inscriptions en attente</h2>
+          </div>
+        </div>
         {pendingUsers.length === 0 ? (
           <p className="text-gray-500">Aucune inscription en attente.</p>
         ) : (
@@ -193,8 +196,12 @@ const UserManagement = () => {
         )}
       </div>
 
-      <div className="card dashboard-card mt-6">
-        <h2 className="font-bold mb-4">Tous les utilisateurs</h2>
+      <div className="card dashboard-card table-card mt-6">
+        <div className="card-header">
+          <div>
+            <h2 className="card-title">Tous les utilisateurs</h2>
+          </div>
+        </div>
         {allUsers.length === 0 ? (
           <p className="text-gray-500">Aucun utilisateur trouvé.</p>
         ) : (

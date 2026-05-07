@@ -76,7 +76,6 @@ const Login = () => {
       <div style={cardStyle}>
         <h2 style={{ fontSize: '30px', marginBottom: '24px', color: '#0f172a' }}>Connexion</h2>
         <p style={{ marginBottom: '28px', color: '#475569' }}>
-          Connectez-vous pour accéder à votre espace et suivre vos demandes.
         </p>
         <form onSubmit={handleSubmit}>
           <label style={{ fontWeight: 600, color: '#334155' }}>Email</label>

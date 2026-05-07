@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMessageSquare, FiUsers } from 'react-icons/fi';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const ChatList = () => {
+  const { user } = useAuth();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const currentUserId = user ? String(user.id) : null;
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -24,6 +27,37 @@ const ChatList = () => {
 
     fetchChats();
   }, []);
+
+  const getParticipants = (chat) => chat.Users || chat.participants || [];
+
+  const getRecipientName = (chat) => {
+    if (chat.isGroup) return chat.name;
+    const recipient = getParticipants(chat).find(p => String(p.id) !== currentUserId);
+    if (recipient?.fullName) return recipient.fullName;
+    const otherMessage = chat.Messages?.find(msg => String(msg.senderId) !== currentUserId);
+    return otherMessage?.User?.fullName || chat.name || 'Conversation privée';
+  };
+
+  const getAvatarColor = (name) => {
+    const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
+  const getLastMessage = (chat) => {
+    if (!chat.Messages || chat.Messages.length === 0) return 'Aucun message';
+    return chat.Messages[0].content;
+  };
+
+  const getLastMessageTime = (chat) => {
+    if (!chat.Messages || chat.Messages.length === 0) return '';
+    const date = new Date(chat.Messages[0].createdAt);
+    const today = new Date();
+    if (date.toDateString() === today.toDateString()) {
+      return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+    return date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' });
+  };
 
   if (loading) {
     return (
@@ -70,45 +104,40 @@ const ChatList = () => {
         </div>
       ) : (
         <div className="space-y-2">
-          {chats.map((chat) => (
-            <Link
-              key={chat.id}
-              to={`/chats/${chat.id}`}
-              className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full ${chat.isGroup ? 'bg-blue-100' : 'bg-green-100'}`}>
-                    {chat.isGroup ? (
-                      <FiUsers className="text-blue-600" size={20} />
-                    ) : (
-                      <FiMessageSquare className="text-green-600" size={20} />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {chat.isGroup ? chat.name : 'Conversation privée'}
-                    </h3>
-                    {chat.Messages && chat.Messages[0] && (
+          {chats.map((chat) => {
+            const recipientName = getRecipientName(chat);
+            return (
+              <Link
+                key={chat.id}
+                to={`/chats/${chat.id}`}
+                className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all duration-200"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0"
+                      style={{ backgroundColor: getAvatarColor(recipientName) }}
+                    >
+                      {recipientName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate">
+                        {recipientName}
+                      </h3>
                       <p className="text-sm text-gray-600 truncate max-w-md">
-                        {chat.Messages[0].content}
+                        {getLastMessage(chat)}
                       </p>
-                    )}
+                    </div>
+                  </div>
+                  <div className="text-right ml-4 flex-shrink-0">
+                    <p className="text-xs text-gray-500 font-medium">
+                      {getLastMessageTime(chat)}
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  {chat.Messages && chat.Messages[0] && (
-                    <p className="text-xs text-gray-500">
-                      {new Date(chat.Messages[0].createdAt).toLocaleDateString('fr-FR', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

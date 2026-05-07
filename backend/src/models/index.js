@@ -26,6 +26,7 @@ Request.hasMany(Notification, { foreignKey: 'requestId' });
 // Chat associations
 Chat.belongsToMany(User, { through: ChatParticipant, foreignKey: 'chatId', otherKey: 'userId' });
 User.belongsToMany(Chat, { through: ChatParticipant, foreignKey: 'userId', otherKey: 'chatId' });
+Chat.hasMany(ChatParticipant, { foreignKey: 'chatId' });
 Chat.hasMany(Message, { foreignKey: 'chatId' });
 Message.belongsTo(Chat, { foreignKey: 'chatId' });
 Message.belongsTo(User, { foreignKey: 'senderId', as: 'User' });

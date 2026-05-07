@@ -1,6 +1,6 @@
 const { User, Request, WorkflowDefinition } = require('../models');
 const { sendAccountActivated } = require('../services/emailService');
-const { findManagerForProfile } = require('../services/hierarchyService');
+const { findManagerForProfile, normalizeDepartment } = require('../services/hierarchyService');
 
 const recomputeDepartmentHierarchy = async (department) => {
   if (!department) return;
@@ -84,6 +84,17 @@ const updateUser = async (req, res) => {
   const nextDepartment = department ?? user.department;
   const nextHierarchyLevel = hierarchyLevel ?? user.hierarchyLevel;
 
+  if (managerId !== undefined && managerId !== null) {
+    const manager = await User.findByPk(managerId);
+    if (!manager) return res.status(404).json({ message: 'Manager introuvable' });
+
+    const normalizedUserDept = normalizeDepartment(nextDepartment);
+    const normalizedManagerDept = normalizeDepartment(manager.department);
+    if (normalizedUserDept !== normalizedManagerDept) {
+      return res.status(400).json({ message: 'Le manager doit appartenir au même département que l utilisateur' });
+    }
+  }
+
   const resolvedManagerId = managerId !== undefined
     ? managerId
     : (await findManagerForProfile({
@@ -128,13 +139,64 @@ const deleteUser = async (req, res) => {
 
 const getOrgChart = async (req, res) => {
   const users = await User.findAll({ where: { isActive: true }, attributes: ['id', 'fullName', 'role', 'department', 'hierarchyLevel', 'managerId'] });
-  res.json(users);
+
+  const normalizedUsers = users.map((user) => ({
+    ...user.toJSON(),
+    departmentKey: normalizeDepartment(user.department) || 'SANS_DEPARTEMENT',
+  }));
+
+  const usersById = normalizedUsers.reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  }, {});
+
+  const usersWithEffectiveManager = await Promise.all(
+    normalizedUsers.map(async (user) => {
+      const validManager = user.managerId
+        ? usersById[user.managerId] && usersById[user.managerId].departmentKey === user.departmentKey
+        : false;
+
+      if (validManager) {
+        return {
+          ...user,
+          effectiveManagerId: user.managerId,
+          effectiveManagerName: usersById[user.managerId]?.fullName || null,
+        };
+      }
+
+      const computedManager = await findManagerForProfile({
+        department: user.department,
+        hierarchyLevel: user.hierarchyLevel,
+        excludeUserIds: [user.id],
+      });
+
+      return {
+        ...user,
+        effectiveManagerId: computedManager?.id || null,
+        effectiveManagerName: computedManager?.fullName || null,
+      };
+    })
+  );
+
+  res.json(usersWithEffectiveManager);
 };
 
 const updateOrgChart = async (req, res) => {
   const { userId, managerId } = req.body;
   const user = await User.findByPk(userId);
   if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+
+  if (managerId !== undefined && managerId !== null) {
+    const manager = await User.findByPk(managerId);
+    if (!manager) return res.status(404).json({ message: 'Manager introuvable' });
+
+    const normalizedUserDept = normalizeDepartment(user.department);
+    const normalizedManagerDept = normalizeDepartment(manager.department);
+    if (normalizedUserDept !== normalizedManagerDept) {
+      return res.status(400).json({ message: 'Le manager doit appartenir au même département que l utilisateur' });
+    }
+  }
+
   user.managerId = managerId;
   await user.save();
   res.json({ message: 'Organigramme mis à jour' });

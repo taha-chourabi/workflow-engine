@@ -51,14 +51,15 @@ const RequestList = () => {
         <Link to="/requests/new" className="btn btn-primary">+ Nouvelle demande</Link>
       </div>
       <div className="card">
-        {loading && <p>Chargement...</p>}
+        {loading && <p className="text-gray-600">Chargement...</p>}
 
         {!loading && requests.length === 0 && (
-          <p>Aucune demande trouvée.</p>
+          <p className="text-gray-600">Aucune demande trouvée.</p>
         )}
 
         {!loading && requests.length > 0 && (
-          <table>
+          <div className="overflow-x-auto">
+            <table>
             <thead>
               <tr>
                 <th>Référence</th>
@@ -86,10 +87,10 @@ const RequestList = () => {
                     <td>{new Date(req.createdAt).toLocaleDateString()}</td>
                     <td>
                       <div className="flex items-center gap-3">
-                        <Link to={`/requests/${req.id}`} className="text-blue-600">Voir</Link>
+                        <Link to={`/requests/${req.id}`} className="text-blue-600 hover:text-blue-800 font-semibold">Voir</Link>
                         <button
                           type="button"
-                          className="text-red-600 disabled:text-gray-400"
+                          className="text-red-600 hover:text-red-800 disabled:text-gray-400"
                           onClick={() => handleDelete(req.id)}
                           disabled={deletingId === req.id}
                         >
@@ -102,6 +103,7 @@ const RequestList = () => {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

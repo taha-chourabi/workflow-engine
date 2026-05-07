@@ -106,13 +106,13 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <div className="dashboard-header mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Tableau de bord Admin</h1>
-        <p className="dashboard-subtitle">Pilotage des utilisateurs, demandes et flux de validation</p>
+        <p className="dashboard-subtitle">Surveillez les demandes, les équipes et les KPI du service dans une vue claire, moderne et adaptée à tous les écrans.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {statCards.map((card) => (
           <div key={card.title} className={`dash-stat-card dash-stat-${card.tone}`}>
             <h3 className="dash-stat-title">{card.title}</h3>
@@ -121,9 +121,14 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card dashboard-card">
-          <h2 className="font-bold mb-4">Dernières demandes</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card dashboard-card table-card overflow-x-auto">
+          <div className="card-header">
+            <div>
+              <h2 className="card-title">Dernières demandes</h2>
+              <p className="text-xs text-gray-500 mt-1">{recentRequests.length} demande(s) récente(s)</p>
+            </div>
+          </div>
           <table>
             <thead>
               <tr><th>Réf.</th><th>Type</th><th>Statut</th></tr>
@@ -131,7 +136,7 @@ const AdminDashboard = () => {
             <tbody>
               {recentRequests.map(req => (
                 <tr key={req.id}>
-                  <td>{req.reference}</td>
+                  <td className="font-mono font-semibold">{req.reference}</td>
                   <td>{req.workflowType}</td>
                   <td><span className={`status status-${req.status}`}>{getStatusLabel(req.status)}</span></td>
                 </tr>
@@ -139,20 +144,25 @@ const AdminDashboard = () => {
             </tbody>
           </table>
         </div>
-        <div className="card dashboard-card">
-          <h2 className="font-bold mb-4">Derniers utilisateurs</h2>
+        <div className="card dashboard-card table-card">
+          <div className="card-header">
+            <div>
+              <h2 className="card-title">Derniers utilisateurs</h2>
+              <p className="text-xs text-gray-500 mt-1">{recentUsers.length} utilisateur(s) récent(s)</p>
+            </div>
+          </div>
           <table>
             <thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Action</th></tr></thead>
             <tbody>
               {recentUsers.map(user => (
                 <tr key={user.id}>
-                  <td>{user.fullName}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role}</td>
+                  <td className="font-semibold">{user.fullName}</td>
+                  <td className="text-sm">{user.email}</td>
+                  <td><span className="px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700">{user.role}</span></td>
                   <td>
                     <button
                       onClick={() => handleDeleteUser(user)}
-                      className="btn btn-danger text-xs"
+                      className="btn btn-danger text-xs px-3 py-1"
                     >
                       Supprimer
                     </button>
@@ -164,8 +174,8 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div className="card dashboard-card">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="card dashboard-card overflow-x-auto">
           <h2 className="font-bold mb-4">Évolution des demandes</h2>
           <Line data={lineData} />
         </div>

@@ -146,12 +146,11 @@ const transitionRequest = async (requestId, action, userId, comment, additionalD
     } else {
       finalStatus = 'in_progress';
     }
-  } else if (action === 'reject' || action === 'return') {
-    // Rule agreed with business: refusal returns to previous step.
+  } else if (action === 'return') {
+    // Retour envoyant la demande au validateur précédent pour correction.
     nextStepIndex = Math.max(0, request.currentStepIndex - 1);
     finalStatus = nextStepIndex === 0 ? 'returned' : 'in_progress';
 
-    // Notify requester with the refusal/return note.
     if (request.creator?.email) {
       await emailService.sendRejection(request.creator.email, request.reference, comment || 'Aucun commentaire');
     }
@@ -159,7 +158,23 @@ const transitionRequest = async (requestId, action, userId, comment, additionalD
       userId: request.createdBy,
       requestId: request.id,
       type: 'inapp',
-      title: `Demande ${action === 'reject' ? 'refusée' : 'retournée'} - ${request.reference}`,
+      title: `Demande retournée - ${request.reference}`,
+      message: comment || 'Aucun commentaire',
+      metadata: { requestId: request.id, action, comment },
+    });
+  } else if (action === 'reject') {
+    // Refus : arrêt total du processus.
+    nextStepIndex = null;
+    finalStatus = 'rejected';
+
+    if (request.creator?.email) {
+      await emailService.sendRejection(request.creator.email, request.reference, comment || 'Aucun commentaire');
+    }
+    await Notification.create({
+      userId: request.createdBy,
+      requestId: request.id,
+      type: 'inapp',
+      title: `Demande refusée - ${request.reference}`,
       message: comment || 'Aucun commentaire',
       metadata: { requestId: request.id, action, comment },
     });

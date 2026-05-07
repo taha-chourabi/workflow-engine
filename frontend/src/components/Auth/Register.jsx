@@ -96,7 +96,6 @@ const Register = () => {
       <div style={cardStyle}>
         <h2 style={{ fontSize: '30px', marginBottom: '24px', color: '#0f172a' }}>Inscription</h2>
         <p style={{ marginBottom: '28px', color: '#475569' }}>
-          Créez votre compte pour suivre les demandes et gérer les workflows.
         </p>
         <form onSubmit={handleSubmit}>
           <label style={{ fontWeight: 600, color: '#334155' }}>Nom complet</label>

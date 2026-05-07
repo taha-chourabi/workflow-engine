@@ -6,22 +6,25 @@ const {
   getChatById, 
   getMessages, 
   sendMessage, 
-  createChat 
+  createChat,
+  deleteMessage,
+  deleteChat
 } = require('../controllers/chatController');
 
-// Get all chats for current user
-router.get('/', protect, getChats);
+router.use(protect);
 
-// Get specific chat by ID
-router.get('/:id', protect, getChatById);
+router.get('/', getChats);
 
-// Get messages for a specific chat
-router.get('/:id/messages', protect, getMessages);
+router.get('/:id', getChatById);
 
-// Send message to a chat
-router.post('/:id/messages', protect, sendMessage);
+router.get('/:id/messages', getMessages);
 
-// Create new chat
-router.post('/', protect, createChat);
+router.post('/:id/messages', sendMessage);
+
+router.delete('/:id/messages/:messageId', deleteMessage);
+
+router.post('/', createChat);
+
+router.delete('/:id', deleteChat);
 
 module.exports = router;

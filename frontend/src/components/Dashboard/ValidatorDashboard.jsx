@@ -40,8 +40,7 @@ const ValidatorDashboard = () => {
     <div>
       <div className="dashboard-header mb-6">
         <h1 className="text-2xl font-bold">Tableau de bord validateur</h1>
-        <p className="dashboard-subtitle">Demandes à traiter sur les étapes qui vous sont assignées</p>
-      </div>
+        </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {statsCards.map((card) => (

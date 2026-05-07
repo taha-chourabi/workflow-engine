@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FiMessageSquare, FiX, FiUserPlus, FiUsers, FiMessageCircle } from 'react-icons/fi';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import UserSelection from './UserSelection';
 import FriendRequests from './FriendRequests';
 import GroupChat from './GroupChat';
 
 const ChatIcon = () => {
+  const { user } = useAuth();
+  const currentUserId = user ? String(user.id) : null;
   const [isOpen, setIsOpen] = useState(false);
   const [showUserSelection, setShowUserSelection] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
@@ -25,6 +28,17 @@ const ChatIcon = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const getParticipants = (chat) => chat.Users || chat.participants || [];
+
+  const getChatLabel = (chat) => {
+    if (chat.isGroup) return chat.name;
+    const recipient = getParticipants(chat).find(p => String(p.id) !== currentUserId);
+    if (recipient?.fullName) return recipient.fullName;
+    const lastMessage = chat.Messages?.[0];
+    if (lastMessage?.User?.fullName) return lastMessage.User.fullName;
+    return chat.name || 'Conversation privée';
+  };
 
   const fetchChats = async () => {
     if (chats.length > 0) return; // Don't refetch if we already have data
@@ -114,7 +128,7 @@ const ChatIcon = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <p className="font-medium text-gray-900 truncate">
-                              {chat.isGroup ? chat.name : 'Conversation privée'}
+                              {getChatLabel(chat)}
                             </p>
                             {chat.Messages && chat.Messages[0] && (
                               <span className="text-xs text-gray-500">
