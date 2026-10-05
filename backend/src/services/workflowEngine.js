@@ -47,7 +47,11 @@ const evaluateConditions = (step, requestData) => {
 
   for (const cond of step.conditions) {
     const fieldValue = requestData?.[cond.field];
-    const [left, right] = toComparableValues(fieldValue, cond.value);
+    let [left, right] = toComparableValues(fieldValue, cond.value);
+    if (typeof left === 'string' && typeof right === 'string') {
+      left = left.trim().toUpperCase();
+      right = right.trim().toUpperCase();
+    }
     let satisfied = false;
     switch (cond.operator) {
       case '>': satisfied = left > right; break;

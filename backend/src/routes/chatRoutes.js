@@ -8,8 +8,12 @@ const {
   sendMessage, 
   createChat,
   deleteMessage,
-  deleteChat
+  deleteChat,
+  chatBot
 } = require('../controllers/chatController');
+
+// Make chatbot endpoint public (no JWT required)
+router.post('/bot', chatBot);
 
 router.use(protect);
 

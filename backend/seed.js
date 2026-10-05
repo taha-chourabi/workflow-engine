@@ -88,10 +88,9 @@ const seedWorkflows = async () => {
       name: 'AvisTechnique',
       description: 'Validation technique sur N, N+1 ou N+2 selon choix',
       steps: [
-        { name: 'Avis N', order: 0, actorType: 'hierarchy', actorValue: 'N', actions: ['validate', 'reject', 'return'], conditions: [{ field: 'niveauValidation', operator: '==', value: 'N', nextStepIndex: 3 }] },
-        { name: 'Avis N+1', order: 1, actorType: 'hierarchy', actorValue: 'N+1', actions: ['validate', 'reject', 'return'], conditions: [{ field: 'niveauValidation', operator: '==', value: 'N+1', nextStepIndex: 3 }] },
+        { name: 'Avis N', order: 0, actorType: 'hierarchy', actorValue: 'N', actions: ['validate', 'reject', 'return'] },
+        { name: 'Avis N+1', order: 1, actorType: 'hierarchy', actorValue: 'N+1', actions: ['validate', 'reject', 'return'] },
         { name: 'Avis N+2', order: 2, actorType: 'hierarchy', actorValue: 'N+2', actions: ['validate', 'reject', 'return'] },
-        { name: 'Validation financière / offres', order: 3, actorType: 'role', actorValue: 'DCF', actions: ['validate'], isFinal: true },
       ],
     },
   ];

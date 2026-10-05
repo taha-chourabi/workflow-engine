@@ -1,13 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.4630ca54.css",
-    "main.js": "/static/js/main.f54f6495.js",
+    "main.css": "/static/css/main.6555d404.css",
+    "main.js": "/static/js/main.6928e15c.js",
+    "static/media/logo.png": "/static/media/logo.891917113b8ae36a3210.png",
+    "static/media/sotacib-logo.jpg": "/static/media/sotacib-logo.e2b12c5bbd6c15b07142.jpg",
     "index.html": "/index.html",
-    "main.4630ca54.css.map": "/static/css/main.4630ca54.css.map",
-    "main.f54f6495.js.map": "/static/js/main.f54f6495.js.map"
+    "main.6555d404.css.map": "/static/css/main.6555d404.css.map",
+    "main.6928e15c.js.map": "/static/js/main.6928e15c.js.map"
   },
   "entrypoints": [
-    "static/css/main.4630ca54.css",
-    "static/js/main.f54f6495.js"
+    "static/css/main.6555d404.css",
+    "static/js/main.6928e15c.js"
   ]
 }

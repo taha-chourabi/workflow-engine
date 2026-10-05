@@ -14,23 +14,23 @@ const WorkflowManagement = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'approved': return <FiCheckCircle className="w-5 h-5" />;
-      case 'rejected': return <FiXCircle className="w-5 h-5" />;
-      case 'in_progress': return <FiActivity className="w-5 h-5" />;
-      case 'pending': return <FiClock className="w-5 h-5" />;
-      case 'returned': return <FiAlertCircle className="w-5 h-5" />;
-      default: return <FiZap className="w-5 h-5" />;
+      case 'approved': return <FiCheckCircle className="w-3 h-3" />;
+      case 'rejected': return <FiXCircle className="w-3 h-3" />;
+      case 'in_progress': return <FiActivity className="w-3 h-3" />;
+      case 'pending': return <FiClock className="w-3 h-3" />;
+      case 'returned': return <FiAlertCircle className="w-3 h-3" />;
+      default: return <FiZap className="w-3 h-3" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'approved': return 'bg-green-50 text-green-700 border-green-200';
-      case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-      case 'in_progress': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'pending': return 'bg-violet-50 text-violet-700 border-violet-200';
-      case 'returned': return 'bg-amber-50 text-amber-700 border-amber-200';
-      default: return 'bg-slate-50 text-slate-700 border-slate-200';
+      case 'approved': return 'ui-badge-green';
+      case 'rejected': return 'ui-badge-red';
+      case 'in_progress': return 'ui-badge-blue';
+      case 'pending': return 'ui-badge-violet';
+      case 'returned': return 'ui-badge-amber';
+      default: return 'ui-badge-slate';
     }
   };
 
@@ -184,276 +184,230 @@ const WorkflowManagement = () => {
 
   const stats = getWorkflowStats();
 
+  const statusLabels = {
+    approved: 'Approuvé',
+    rejected: 'Rejeté',
+    in_progress: 'En cours',
+    pending: 'En attente',
+    returned: 'Retourné',
+    draft: 'Brouillon',
+  };
+
+  const statTiles = [
+    { label: 'Total', value: stats.total, icon: FiActivity, tile: 'ui-tile-brand' },
+    { label: 'Approuvés', value: stats.approved, icon: FiCheckCircle, tile: 'ui-tile-green' },
+    { label: 'En cours', value: stats.in_progress, icon: FiActivity, tile: 'ui-tile-blue' },
+    { label: 'En attente', value: stats.pending, icon: FiClock, tile: 'ui-tile-violet' },
+    { label: 'Rejetés', value: stats.rejected, icon: FiXCircle, tile: 'ui-tile-red' },
+    { label: 'Retournés', value: stats.returned, icon: FiAlertCircle, tile: 'ui-tile-amber' },
+    { label: 'Brouillons', value: stats.draft, icon: FiZap, tile: 'ui-tile-slate' },
+    { label: 'Progression moy.', value: `${stats.avgProgress}%`, icon: FiTrendingUp, tile: 'ui-tile-brand' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="ui-page">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Suivi des Workflows
-              </h1>
-              <p className="text-gray-600 mt-1">Surveillance et gestion de tous les workflows en temps réel</p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Rechercher..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              >
-                <option value="all">Tous les statuts</option>
-                <option value="pending">En attente</option>
-                <option value="in_progress">En cours</option>
-                <option value="approved">Approuvé</option>
-                <option value="rejected">Rejeté</option>
-                <option value="returned">Retourné</option>
-                <option value="draft">Brouillon</option>
-              </select>
-              <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${
-                  autoRefresh 
-                    ? 'bg-green-50 text-green-700 border-green-200' 
-                    : 'bg-gray-50 text-gray-700 border-gray-200'
-                }`}
-              >
-                <FiRefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-                Auto
-              </button>
-            </div>
+      <div className="ui-page-header">
+        <div>
+          <span className="ui-eyebrow"><FiTarget /> Administration</span>
+          <h1 className="ui-title">Suivi des workflows</h1>
+        </div>
+        <div className="ui-toolbar">
+          <div className="relative">
+            <FiSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Référence, type, demandeur..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="ui-input ui-input-icon w-64"
+            />
           </div>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="ui-select"
+          >
+            <option value="all">Tous les statuts</option>
+            <option value="pending">En attente</option>
+            <option value="in_progress">En cours</option>
+            <option value="approved">Approuvé</option>
+            <option value="rejected">Rejeté</option>
+            <option value="returned">Retourné</option>
+            <option value="draft">Brouillon</option>
+          </select>
+          <button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`ui-btn border ${autoRefresh ? 'ui-toggle-on' : 'ui-btn-secondary'}`}
+            title="Actualisation automatique"
+          >
+            <FiRefreshCw className={`h-4 w-4 ${autoRefresh ? 'animate-spin [animation-duration:3s]' : ''}`} />
+            Auto
+          </button>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Statistics Cards */}
-        {!loading && trackedRequests.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-                  <div className="text-sm text-gray-600">Total Workflows</div>
+      {/* Statistics Cards */}
+      {!loading && trackedRequests.length > 0 && (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {statTiles.map(({ label, value, icon: Icon, tile }, index) => (
+            <div key={label} className="ui-stat p-4 animate-fade-up" style={{ animationDelay: `${index * 40}ms` }}>
+              <div className="flex items-center gap-3">
+                <div className={`ui-icon-tile ${tile}`}>
+                  <Icon className="h-5 w-5" />
                 </div>
-                <FiActivity className="w-8 h-8 text-blue-500" />
+                <div>
+                  <div className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{value}</div>
+                  <div className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</div>
+                </div>
               </div>
             </div>
-            <div className="bg-green-50 rounded-xl p-4 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
-                  <div className="text-sm text-green-600">Approuvés</div>
-                </div>
-                <FiCheckCircle className="w-8 h-8 text-green-500" />
-              </div>
-            </div>
-            <div className="bg-blue-50 rounded-xl p-4 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">{stats.in_progress}</div>
-                  <div className="text-sm text-blue-600">En cours</div>
-                </div>
-                <FiActivity className="w-8 h-8 text-blue-500" />
-              </div>
-            </div>
-            <div className="bg-violet-50 rounded-xl p-4 shadow-sm border border-violet-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-violet-600">{stats.pending}</div>
-                  <div className="text-sm text-violet-600">En attente</div>
-                </div>
-                <FiClock className="w-8 h-8 text-violet-500" />
-              </div>
-            </div>
-            <div className="bg-red-50 rounded-xl p-4 shadow-sm border border-red-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
-                  <div className="text-sm text-red-600">Rejetés</div>
-                </div>
-                <FiXCircle className="w-8 h-8 text-red-500" />
-              </div>
-            </div>
-            <div className="bg-amber-50 rounded-xl p-4 shadow-sm border border-amber-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-amber-600">{stats.returned}</div>
-                  <div className="text-sm text-amber-600">Retournés</div>
-                </div>
-                <FiAlertCircle className="w-8 h-8 text-amber-500" />
-              </div>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-slate-600">{stats.draft}</div>
-                  <div className="text-sm text-slate-600">Brouillons</div>
-                </div>
-                <FiZap className="w-8 h-8 text-slate-500" />
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 shadow-sm border border-indigo-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-indigo-600">{stats.avgProgress}%</div>
-                  <div className="text-sm text-indigo-600">Progression Moy.</div>
-                </div>
-                <FiTrendingUp className="w-8 h-8 text-indigo-500" />
-              </div>
-            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => <div key={i} className="ui-skeleton h-64 rounded-2xl"></div>)}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && filteredRequests.length === 0 && (
+        <div className="ui-card ui-empty">
+          <div className="ui-empty-icon">
+            <FiActivity className="h-6 w-6" />
           </div>
-        )}
+          <h3 className="ui-empty-title">
+            {trackedRequests.length === 0 ? 'Aucun workflow trouvé' : 'Aucun résultat trouvé'}
+          </h3>
+          <p className="ui-empty-text">
+            {trackedRequests.length === 0
+              ? 'Les workflows apparaîtront ici une fois créés'
+              : 'Essayez de modifier vos filtres de recherche'}
+          </p>
+        </div>
+      )}
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-4"></div>
-            <p className="text-gray-600 text-lg">Chargement des workflows...</p>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && filteredRequests.length === 0 && (
-          <div className="text-center py-16">
-            <div className="bg-gray-100 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-              <FiActivity className="w-12 h-12 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {trackedRequests.length === 0 ? 'Aucun workflow trouvé' : 'Aucun résultat trouvé'}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {trackedRequests.length === 0 
-                ? 'Les workflows apparaîtront ici une fois créés' 
-                : 'Essayez de modifier vos filtres de recherche'}
-            </p>
-          </div>
-        )}
-
-        {/* Workflow Cards Grid */}
-        {!loading && filteredRequests.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredRequests.map((request, index) => (
-              <div
-                key={request.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="p-6">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-mono font-semibold">
-                          {request.reference}
-                        </div>
-                        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${getStatusColor(request.status)}`}>
-                          {getStatusIcon(request.status)}
-                          <span className="text-sm font-medium capitalize">
-                            {request.status.replace('_', ' ')}
-                          </span>
-                        </div>
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                        {request.workflowType}
-                      </h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
-                        <div className="flex items-center gap-1">
-                          <FiUser className="w-4 h-4 text-gray-400" />
-                          {request.creator?.fullName || request.createdBy || 'N/A'}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FiCalendar className="w-4 h-4 text-gray-400" />
-                          {request.createdAt ? new Date(request.createdAt).toLocaleDateString('fr-FR') : '-'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Progress Section */}
-                  <div className="mb-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700">Progression du workflow</span>
-                      <span className="text-sm font-bold text-gray-900">{request.progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
-                      <div
-                        className={`h-3 rounded-full transition-all duration-500 ${getProgressColor(request.progress)}`}
-                        style={{ width: `${request.progress}%` }}
-                      />
-                    </div>
-                    <div className="mt-2 flex items-center justify-between text-sm">
-                      <span className="text-gray-600">
-                        <strong>Étape actuelle:</strong> {request.currentStepName}
+      {/* Workflow Cards Grid */}
+      {!loading && filteredRequests.length > 0 && (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          {filteredRequests.map((request, index) => (
+            <div
+              key={request.id}
+              className="ui-card ui-card-hover animate-fade-up"
+              style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
+            >
+              <div className="p-5">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-lg bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        {request.reference}
                       </span>
-                      {request.upcomingStep && (
-                        <span className="text-gray-600">
-                          <strong>Prochaine:</strong> {request.upcomingStep}
-                        </span>
-                      )}
+                      <span className={`ui-badge ${getStatusColor(request.status)}`}>
+                        {getStatusIcon(request.status)}
+                        {statusLabels[request.status] || request.status.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <h3 className="mt-2 truncate text-base font-semibold text-slate-900 dark:text-white">
+                      {request.workflowType}
+                    </h3>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                      <span className="flex items-center gap-1.5">
+                        <FiUser className="h-3.5 w-3.5" />
+                        {request.creator?.fullName || request.createdBy || 'N/A'}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <FiCalendar className="h-3.5 w-3.5" />
+                        {request.createdAt ? new Date(request.createdAt).toLocaleDateString('fr-FR') : '-'}
+                      </span>
                     </div>
                   </div>
+                  <div className="relative flex h-14 w-14 flex-shrink-0 items-center justify-center">
+                    <svg className="h-14 w-14 -rotate-90" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="15.5" fill="none" strokeWidth="3" className="stroke-slate-100 dark:stroke-slate-800" />
+                      <circle
+                        cx="18" cy="18" r="15.5" fill="none" strokeWidth="3" strokeLinecap="round"
+                        className={request.progress === 100 ? 'stroke-emerald-500' : 'stroke-brand-500'}
+                        strokeDasharray={`${(request.progress / 100) * 97.4} 97.4`}
+                      />
+                    </svg>
+                    <span className="absolute text-xs font-bold text-slate-800 dark:text-slate-100">{request.progress}%</span>
+                  </div>
+                </div>
 
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FiCheckCircle className="w-4 h-4 text-green-600" />
-                        <h3 className="font-semibold text-green-800 text-sm">Validé par</h3>
-                      </div>
-                      {request.validatedBy.length === 0 ? (
-                        <p className="text-sm text-gray-500">Aucune validation pour le moment</p>
-                      ) : (
-                        <div className="space-y-1">
-                          {request.validatedBy.map((name, idx) => (
-                            <div key={`${request.id}-v-${idx}`} className="text-sm text-gray-700 flex items-center gap-2">
-                              <FiUser className="w-3 h-3 text-gray-400" />
-                              {name}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                {/* Progress Section */}
+                <div className="mt-5">
+                  <div className="ui-progress">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(request.progress)}`}
+                      style={{ width: `${request.progress}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="text-slate-500 dark:text-slate-400">
+                      Étape actuelle : <span className="font-semibold text-slate-800 dark:text-slate-200">{request.currentStepName}</span>
+                    </span>
+                    {request.upcomingStep && (
+                      <span className="text-slate-500 dark:text-slate-400">
+                        Prochaine : <span className="font-semibold text-slate-800 dark:text-slate-200">{request.upcomingStep}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div className="ui-muted-panel p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <FiCheckCircle className="h-4 w-4 text-emerald-500" />
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">Validé par</h4>
                     </div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FiTarget className="w-4 h-4 text-blue-600" />
-                        <h3 className="font-semibold text-blue-800 text-sm">Étapes restantes</h3>
+                    {request.validatedBy.length === 0 ? (
+                      <p className="text-sm text-slate-400">Aucune validation pour le moment</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {request.validatedBy.map((name, idx) => (
+                          <div key={`${request.id}-v-${idx}`} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            {name}
+                          </div>
+                        ))}
                       </div>
-                      {request.remainingSteps.length === 0 ? (
-                        <p className="text-sm text-gray-500">Aucune étape restante</p>
-                      ) : (
-                        <div className="space-y-1">
-                          {request.remainingSteps.slice(0, 3).map((stepName, idx) => (
-                            <div key={`${request.id}-r-${idx}`} className="text-sm text-gray-700 flex items-center gap-2">
-                              <FiZap className="w-3 h-3 text-gray-400" />
-                              {stepName}
-                            </div>
-                          ))}
-                          {request.remainingSteps.length > 3 && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              +{request.remainingSteps.length - 3} autre(s) étape(s)
-                            </p>
-                          )}
-                        </div>
-                      )}
+                    )}
+                  </div>
+                  <div className="ui-muted-panel p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <FiTarget className="h-4 w-4 text-brand-500" />
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">Étapes restantes</h4>
                     </div>
+                    {request.remainingSteps.length === 0 ? (
+                      <p className="text-sm text-slate-400">Aucune étape restante</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {request.remainingSteps.slice(0, 3).map((stepName, idx) => (
+                          <div key={`${request.id}-r-${idx}`} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                            <span className={`h-1.5 w-1.5 rounded-full ${idx === 0 ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                            {stepName}
+                          </div>
+                        ))}
+                        {request.remainingSteps.length > 3 && (
+                          <p className="mt-1 text-xs text-slate-400">
+                            +{request.remainingSteps.length - 3} autre(s) étape(s)
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

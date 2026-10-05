@@ -25,6 +25,9 @@ const workflowRoutes = require('./src/routes/workflowRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 
 const chatRoutes = require('./src/routes/chatRoutes');
+const chatbotRoutes = require('./src/routes/chatbot');
+// Expose chatbot endpoint publicly (before protect middleware applied in router)
+const { chatBot } = require('./src/controllers/chatController');
 
 const friendshipRoutes = require('./src/routes/friendshipRoutes');
 
@@ -69,6 +72,9 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/workflows', workflowRoutes);
 
 app.use('/api/notifications', notificationRoutes);
+
+// Public chatbot endpoint
+app.use(chatbotRoutes);
 
 app.use('/api/chats', require('./src/routes/chatRoutes'));
 

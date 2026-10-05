@@ -1,62 +1,87 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiHome, FiFileText, FiUsers, FiPieChart, FiGitBranch } from 'react-icons/fi';
+import { FiArrowUpRight } from 'react-icons/fi';
 import logo from '../../assets/sotacib-logo.jpg';
-import workflowLogo from '../../assets/logo.png';
 
 const Sidebar = ({ isAdmin }) => {
   const location = useLocation();
-  
+
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: FiHome },
-    { path: '/requests', label: 'Mes demandes', icon: FiFileText },
-  ];
-  
-  const adminItems = [
-    { path: '/admin/users', label: 'Utilisateurs', icon: FiUsers },
-    { path: '/admin/orgchart', label: 'Organigramme', icon: FiGitBranch },
-    { path: '/admin/workflows', label: 'Workflows', icon: FiGitBranch },
-    { path: '/admin/stats', label: 'Statistiques', icon: FiPieChart },
+    { path: '/', label: 'Tableau de bord' },
+    { path: '/requests', label: 'Mes demandes' },
+    { path: '/chats', label: 'Messages' },
   ];
 
-  const items = isAdmin ? [...navItems, ...adminItems] : navItems;
+  const adminItems = [
+    { path: '/admin/users', label: 'Utilisateurs' },
+    { path: '/admin/orgchart', label: 'Organigramme' },
+    { path: '/admin/workflows', label: 'Workflows' },
+    { path: '/admin/stats', label: 'Statistiques' },
+  ];
+
+  const isActivePath = (path) =>
+    path === '/' ? location.pathname === '/' : location.pathname === path || location.pathname.startsWith(`${path}/`);
+
+  const renderItem = (item, index, offset = 0) => {
+    const isActive = isActivePath(item.path);
+    return (
+      <Link
+        key={item.path}
+        to={item.path}
+        className={`group flex items-center gap-3 border-b border-white/[0.06] py-3 text-[15px] transition-colors duration-200 ${
+          isActive ? 'text-white' : 'text-stone-400 hover:text-white'
+        }`}
+      >
+        <span className={`w-6 font-['Inter_Tight'] text-[11px] tabular-nums ${isActive ? 'text-brand-400' : 'text-stone-600'}`}>
+          {String(index + 1 + offset).padStart(2, '0')}
+        </span>
+        <span className={`flex-1 font-['Inter_Tight'] tracking-tight ${isActive ? 'font-medium' : 'font-light'}`}>{item.label}</span>
+        {isActive ? (
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-500 shadow-[0_0_0_4px_rgba(232,89,26,0.18)]" />
+        ) : (
+          <FiArrowUpRight size={14} className="text-stone-600 opacity-0 transition group-hover:opacity-100" />
+        )}
+      </Link>
+    );
+  };
 
   return (
-    <aside className="w-72 bg-gradient-to-b from-slate-50 to-slate-100 border-r border-slate-200 min-h-screen p-5 shadow-sm">
-      <div className="mb-6 rounded-3xl bg-white/90 border border-slate-200 p-4 shadow-sm">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-3xl bg-slate-100 border border-slate-200 overflow-hidden">
-            <img src={logo} alt="SOTACIB" className="h-full w-full object-contain" />
-          </div>
-          <div className="w-16 h-16 rounded-3xl bg-slate-100 border border-slate-200 overflow-hidden">
-            <img src={workflowLogo} alt="Workflow" className="h-full w-full object-contain" />
-          </div>
+    <aside className="sticky top-0 hidden h-screen w-64 flex-shrink-0 flex-col bg-[#1b1b1a] text-stone-200 md:flex">
+      <div className="flex h-20 items-center gap-3 px-6">
+        <div className="h-9 w-9 overflow-hidden rounded-full bg-white p-0.5">
+          <img src={logo} alt="SOTACIB" className="h-full w-full rounded-full object-contain" />
         </div>
-        <div>
-          <p className="text-sm font-semibold text-slate-900">SOTACIB Workflow</p>
+        <div className="leading-tight">
+          <p className="font-['Inter_Tight'] text-[15px] font-medium tracking-tight text-white">SOTACIB</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500">Workflow</p>
         </div>
       </div>
-      <nav className="space-y-1.5">
-        {items.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center space-x-3 px-5 py-3.5 rounded-1xl transition-all duration-300 ${
-                isActive 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/40 font-semibold' 
-                  : 'text-slate-700 hover:bg-blue-50/80 font-medium'
-              }`}
-            >
-              <Icon size={22} />
-              <span className="flex-1">{item.label}</span>
-              {isActive && <div className="w-2 h-2 rounded-full bg-white"></div>}
-            </Link>
-          );
-        })}
+
+      <nav className="flex-1 overflow-y-auto px-6 pb-6 pt-4">
+        <p className="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+          <span className="h-px w-5 bg-brand-500" /> Espace
+        </p>
+        <div>{navItems.map((item, i) => renderItem(item, i))}</div>
+
+        {isAdmin && (
+          <>
+            <p className="mb-1 mt-8 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+              <span className="h-px w-5 bg-brand-500" /> Administration
+            </p>
+            <div>{adminItems.map((item, i) => renderItem(item, i, navItems.length))}</div>
+          </>
+        )}
       </nav>
+
+      <div className="m-4 rounded-2xl bg-white/[0.04] p-5 ring-1 ring-white/[0.06]">
+        <svg viewBox="0 0 24 24" className="h-6 w-6 text-brand-500" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <path d="M5 5l14 14M19 5L5 19" />
+        </svg>
+        <p className="mt-3 font-['Inter_Tight'] text-[15px] font-light leading-snug text-white">
+          Des circuits de validation plus rapides et traçables.
+        </p>
+        <p className="mt-2 text-[11px] text-stone-500">Assistant disponible en haut à droite.</p>
+      </div>
     </aside>
   );
 };

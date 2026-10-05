@@ -1,6 +1,8 @@
 const { Request, WorkflowDefinition, User } = require('../models');
 const { transitionRequest, resolveHierarchy, getTargetUser } = require('../services/workflowEngine');
 const emailService = require('../services/emailService');
+const { streamRequestPDF } = require('../services/pdfService');
+const { canSeeRequest } = require('../services/assistantContext');
 const { Op } = require('sequelize');
 
 const createRequest = async (req, res, next) => {
@@ -41,6 +43,7 @@ const submitRequest = async (req, res) => {
     await emailService.sendStepNotification(firstActor.email, request.reference, firstStep.name, `${process.env.FRONTEND_URL}/requests/${request.id}`);
   }
   request.status = 'in_progress';
+  request.currentStepIndex = firstStepIndex;
   await request.save();
   res.json(request);
 };
@@ -132,6 +135,26 @@ const deleteRequest = async (req, res) => {
   res.status(204).send();
 };
 
+// PDF récapitulatif généré à la demande, quel que soit l'état de la demande
+const downloadRequestPdf = async (req, res, next) => {
+  try {
+    const request = await Request.findByPk(req.params.id, {
+      include: [
+        { model: User, as: 'creator', attributes: ['id', 'fullName', 'department', 'role'] },
+        { model: User, as: 'assignee', attributes: ['id', 'fullName', 'department', 'role'] },
+      ],
+    });
+    if (!request) return res.status(404).json({ message: 'Demande introuvable' });
+    if (!canSeeRequest(req.user, request)) return res.status(403).json({ message: 'Non autorise' });
+
+    const workflow = await WorkflowDefinition.findOne({ where: { name: request.workflowType } });
+    return await streamRequestPDF(res, request, request.creator, workflow);
+  } catch (error) {
+    if (res.headersSent) return res.end();
+    return next(error);
+  }
+};
+
 const uploadAttachment = async (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'Aucun fichier' });
   const fileUrl = `/uploads/${req.file.filename}`;
@@ -145,4 +168,4 @@ const uploadAttachment = async (req, res) => {
   res.json({ fileUrl });
 };
 
-module.exports = { createRequest, submitRequest, updateDraftRequest, getRequests, getRequestById, takeAction, deleteRequest, uploadAttachment };
+module.exports = { createRequest, submitRequest, updateDraftRequest, getRequests, getRequestById, takeAction, deleteRequest, uploadAttachment, downloadRequestPdf };

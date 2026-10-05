@@ -4,6 +4,11 @@ const { User } = require('../models');
 const protect = async (req, res, next) => {
   let token;
 
+  // Allow public access to the chatbot endpoint
+  if (req.originalUrl && req.originalUrl.startsWith('/api/chats/bot')) {
+    return next();
+  }
+
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }

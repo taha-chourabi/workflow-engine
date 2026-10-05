@@ -6,7 +6,8 @@ import { getUsers } from '../services/adminService';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { toast } from 'react-toastify';
-import { FiUsers, FiFileText, FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiTrendingUp, FiActivity, FiCalendar, FiRefreshCw, FiFilter, FiSearch, FiSettings, FiShield, FiZap, FiTarget, FiBarChart2, FiPieChart, FiUserX, FiMoreVertical, FiDownload } from 'react-icons/fi';
+import { exportRequestsExcel } from '../../utils/excelExport';
+import { FiUsers, FiFileText, FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiTrendingUp, FiActivity, FiCalendar, FiRefreshCw, FiFilter, FiSearch, FiSettings, FiShield, FiZap, FiTarget, FiBarChart2, FiPieChart, FiUserX, FiMoreVertical, FiDownload, FiArrowUpRight, FiChevronDown } from 'react-icons/fi';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
 
@@ -20,26 +21,27 @@ const AdminDashboard = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('all');
+  const [exporting, setExporting] = useState(false);
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'approved': return <FiCheckCircle className="w-4 h-4" />;
-      case 'rejected': return <FiXCircle className="w-4 h-4" />;
-      case 'in_progress': return <FiActivity className="w-4 h-4" />;
-      case 'pending': return <FiClock className="w-4 h-4" />;
-      case 'returned': return <FiAlertCircle className="w-4 h-4" />;
-      default: return <FiFileText className="w-4 h-4" />;
+      case 'approved': return <FiCheckCircle className="w-3 h-3" />;
+      case 'rejected': return <FiXCircle className="w-3 h-3" />;
+      case 'in_progress': return <FiActivity className="w-3 h-3" />;
+      case 'pending': return <FiClock className="w-3 h-3" />;
+      case 'returned': return <FiAlertCircle className="w-3 h-3" />;
+      default: return <FiFileText className="w-3 h-3" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'approved': return 'bg-green-50 text-green-700 border-green-200';
-      case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-      case 'in_progress': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'pending': return 'bg-violet-50 text-violet-700 border-violet-200';
-      case 'returned': return 'bg-amber-50 text-amber-700 border-amber-200';
-      default: return 'bg-slate-50 text-slate-700 border-slate-200';
+      case 'approved': return 'ui-badge-green';
+      case 'rejected': return 'ui-badge-red';
+      case 'in_progress': return 'ui-badge-blue';
+      case 'pending': return 'ui-badge-violet';
+      case 'returned': return 'ui-badge-amber';
+      default: return 'ui-badge-slate';
     }
   };
 
@@ -61,17 +63,17 @@ const AdminDashboard = () => {
 
   const getRoleIcon = (role) => {
     switch (role) {
-      case 'admin': return <FiShield className="w-4 h-4" />;
-      case 'validator': return <FiCheckCircle className="w-4 h-4" />;
-      default: return <FiUsers className="w-4 h-4" />;
+      case 'admin': return <FiShield className="w-3 h-3" />;
+      case 'validator': return <FiCheckCircle className="w-3 h-3" />;
+      default: return <FiUsers className="w-3 h-3" />;
     }
   };
 
   const getRoleColor = (role) => {
     switch (role) {
-      case 'admin': return 'bg-red-50 text-red-700 border-red-200';
-      case 'validator': return 'bg-blue-50 text-blue-700 border-blue-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'admin': return 'ui-badge-red';
+      case 'validator': return 'ui-badge-blue';
+      default: return 'ui-badge-slate';
     }
   };
 
@@ -89,6 +91,26 @@ const AdminDashboard = () => {
       setRecentUsers(users.slice(0, 5));
     } catch (error) {
       toast.error('Erreur chargement dashboard admin');
+    }
+  };
+
+  // Export Excel mis en forme de toutes les demandes (filtrées par la recherche en cours)
+  const handleExport = async () => {
+    const term = searchTerm.toLowerCase();
+    const rows = allRequests.filter((req) =>
+      !term || req.reference?.toLowerCase().includes(term) || req.workflowType?.toLowerCase().includes(term)
+    );
+    setExporting(true);
+    try {
+      await exportRequestsExcel(rows, {
+        title: 'Tableau de bord des demandes',
+        filtersLabel: searchTerm ? `Recherche « ${searchTerm} »` : 'Toutes les demandes',
+      });
+      toast.success('Fichier Excel téléchargé');
+    } catch (error) {
+      toast.error("Impossible de générer le fichier Excel");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -152,297 +174,327 @@ const AdminDashboard = () => {
   };
 
   const statCards = [
-    { title: 'Utilisateurs', value: stats.totalUsers || 0, tone: 'slate', icon: <FiUsers className="w-6 h-6" />, trend: '+12%' },
-    { title: 'Total demandes', value: stats.totalRequests || 0, tone: 'blue', icon: <FiFileText className="w-6 h-6" />, trend: '+8%' },
-    { title: 'Demandes en attente', value: stats.pendingRequests || 0, tone: 'violet', icon: <FiClock className="w-6 h-6" />, trend: '-3%' },
-    { title: 'Demandes en cours', value: stats.inProgressRequests || 0, tone: 'amber', icon: <FiActivity className="w-6 h-6" />, trend: '+5%' },
-    { title: 'Demandes approuvées', value: stats.approvedRequests || 0, tone: 'green', icon: <FiCheckCircle className="w-6 h-6" />, trend: '+15%' },
-    { title: 'Demandes refusées', value: stats.rejectedRequests || 0, tone: 'red', icon: <FiXCircle className="w-6 h-6" />, trend: '-2%' },
-    { title: 'Demandes retournées', value: stats.returnedRequests || 0, tone: 'orange', icon: <FiAlertCircle className="w-6 h-6" />, trend: '+1%' },
-    { title: 'Terminées', value: stats.completedRequests || 0, tone: 'indigo', icon: <FiTarget className="w-6 h-6" />, trend: '+10%' },
+    { title: 'Utilisateurs', value: stats.totalUsers || 0, tone: 'slate', icon: <FiUsers className="w-5 h-5" />, trend: '+12%' },
+    { title: 'Total demandes', value: stats.totalRequests || 0, tone: 'blue', icon: <FiFileText className="w-5 h-5" />, trend: '+8%' },
+    { title: 'Demandes en attente', value: stats.pendingRequests || 0, tone: 'violet', icon: <FiClock className="w-5 h-5" />, trend: '-3%' },
+    { title: 'Demandes en cours', value: stats.inProgressRequests || 0, tone: 'amber', icon: <FiActivity className="w-5 h-5" />, trend: '+5%' },
+    { title: 'Demandes approuvées', value: stats.approvedRequests || 0, tone: 'green', icon: <FiCheckCircle className="w-5 h-5" />, trend: '+15%' },
+    { title: 'Demandes refusées', value: stats.rejectedRequests || 0, tone: 'red', icon: <FiXCircle className="w-5 h-5" />, trend: '-2%' },
+    { title: 'Demandes retournées', value: stats.returnedRequests || 0, tone: 'orange', icon: <FiAlertCircle className="w-5 h-5" />, trend: '+1%' },
+    { title: 'Terminées', value: stats.completedRequests || 0, tone: 'indigo', icon: <FiTarget className="w-5 h-5" />, trend: '+10%' },
   ];
 
+  const toneTiles = {
+    slate: 'ui-tile-slate',
+    blue: 'ui-tile-blue',
+    violet: 'ui-tile-violet',
+    amber: 'ui-tile-amber',
+    green: 'ui-tile-green',
+    red: 'ui-tile-red',
+    orange: 'ui-tile-amber',
+    indigo: 'ui-tile-brand',
+  };
+
+  const isDark = document.documentElement.classList.contains('dark');
+  const axisColor = isDark ? '#9a948a' : '#7a756c';
+  const gridColor = isDark ? 'rgba(154,148,138,0.12)' : 'rgba(122,117,108,0.14)';
+
+  const styledLineData = {
+    ...lineData,
+    datasets: lineData.datasets.map((dataset) => ({
+      ...dataset,
+      borderColor: '#e8591a',
+      backgroundColor: 'rgba(232,89,26,0.10)',
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointBackgroundColor: '#e8591a',
+    })),
+  };
+
+  const styledDoughnutData = {
+    ...doughnutData,
+    datasets: doughnutData.datasets.map((dataset) => ({
+      ...dataset,
+      backgroundColor: ['#2f7d5b', '#c23b3b', '#e8591a'],
+      borderColor: isDark ? '#1c1c1a' : '#fbfaf7',
+      borderWidth: 3,
+    })),
+  };
+
+  const statusDots = {
+    violet: '#8a6bd1', amber: '#e8591a', green: '#2f7d5b', red: '#c23b3b', orange: '#e0a019', indigo: '#3d3b37', slate: '#a8a195', blue: '#3b82c4',
+  };
+
+  const typeLabels = {
+    AvanceCaisse: 'Avance sur caisse',
+    CreationClient: 'Création client',
+    Investissement: 'Investissement',
+    AvisTechnique: 'Avis technique',
+  };
+
+  const doughnutLegend = [
+    { label: 'Approuvées', value: approvedCount, color: '#2f7d5b' },
+    { label: 'Rejetées', value: rejectedCount, color: '#c23b3b' },
+    { label: 'En cours', value: inProgressCount, color: '#e8591a' },
+  ];
+  const doughnutTotal = approvedCount + rejectedCount + inProgressCount;
+
+  const quickActions = [
+    { label: 'Paramètres', hint: 'Configuration du système', icon: FiSettings, to: '/admin/settings' },
+    { label: 'Gérer les utilisateurs', hint: 'Comptes, rôles et inscriptions', icon: FiUsers, to: '/admin/users' },
+    { label: 'Voir toutes les demandes', hint: 'Registre complet', icon: FiFileText, to: '/admin/requests' },
+  ];
+
+  const pillSelect =
+    'h-10 appearance-none rounded-full border border-white/15 bg-white/[0.06] pl-4 pr-9 text-sm text-white outline-none transition hover:bg-white/10 focus:border-white/40';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Tableau de Bord Admin
-              </h1>
-              <p className="text-gray-600 mt-1">Vue d'ensemble complète du système</p>
+    <div className="ui-page">
+      {/* Bandeau */}
+      <div className="relative overflow-hidden rounded-[1.5rem] bg-[#1b1b1a] px-6 py-8 text-white sm:px-10 sm:py-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(232,89,26,0.45),transparent_65%)] blur-2xl" />
+
+        <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
+              <span className="h-px w-6 bg-brand-500" />
+              Espace administrateur
+            </p>
+            <h1 className="mt-5 font-['Inter_Tight'] text-5xl font-extralight leading-none tracking-[-0.045em] sm:text-6xl">
+              Tableau de bord
+            </h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <FiSearch className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="!h-10 w-52 rounded-full border border-white/15 !bg-white/[0.06] pl-10 pr-4 text-sm !text-white outline-none placeholder:text-stone-400 focus:border-white/40"
+              />
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Rechercher..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-              <select
-                value={filterPeriod}
-                onChange={(e) => setFilterPeriod(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              >
-                <option value="all">Toutes les périodes</option>
-                <option value="today">Aujourd'hui</option>
-                <option value="week">Cette semaine</option>
-                <option value="month">Ce mois</option>
+            <div className="relative">
+              <select value={filterPeriod} onChange={(e) => setFilterPeriod(e.target.value)} className={`${pillSelect} !bg-white/[0.06] !text-white`}>
+                <option value="all" className="text-[#1b1b1a]">Toutes les périodes</option>
+                <option value="today" className="text-[#1b1b1a]">Aujourd'hui</option>
+                <option value="week" className="text-[#1b1b1a]">Cette semaine</option>
+                <option value="month" className="text-[#1b1b1a]">Ce mois</option>
               </select>
-              <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${
-                  autoRefresh 
-                    ? 'bg-green-50 text-green-700 border-green-200' 
-                    : 'bg-gray-50 text-gray-700 border-gray-200'
-                }`}
-              >
-                <FiRefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-                Auto
-              </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-                <FiDownload className="w-4 h-4" />
-                Exporter
-              </button>
+              <FiChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             </div>
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm text-stone-200 transition hover:bg-white/15"
+            >
+              <span className={`h-2 w-2 rounded-full ${autoRefresh ? 'animate-pulse bg-emerald-400' : 'bg-stone-500'}`} />
+              Auto
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="group inline-flex h-10 items-center gap-3 rounded-full bg-white pl-5 pr-1.5 text-sm font-medium text-[#1b1b1a] transition-colors hover:bg-brand-500 hover:text-white disabled:opacity-60"
+            >
+              {exporting ? 'Préparation…' : 'Exporter'}
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1b1b1a] text-white">
+                <FiDownload className="h-3.5 w-3.5" />
+              </span>
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Enhanced Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {statCards.map((card, index) => (
-            <div
-              key={card.title}
-              className={`dash-stat-card dash-stat-${card.tone} animate-fadeIn hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className={`p-2 rounded-lg bg-white/50`}>
-                  {card.icon}
-                </div>
-                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                  card.trend.startsWith('+') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
-                  {card.trend}
-                </span>
-              </div>
-              <h3 className="dash-stat-title">{card.title}</h3>
-              <p className="dash-stat-value">{card.value}</p>
+        <div className="relative mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 lg:grid-cols-4">
+          {statCards.slice(0, 4).map((card) => (
+            <div key={card.title} className="bg-[#1b1b1a]/95 px-5 py-5">
+              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-stone-500 [&>svg]:h-3 [&>svg]:w-3">
+                {card.icon} {card.title}
+              </p>
+              <p className="mt-3 font-['Inter_Tight'] text-4xl font-extralight tabular-nums tracking-[-0.04em] sm:text-5xl">{card.value}</p>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Enhanced Recent Requests */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <FiFileText className="w-5 h-5 text-blue-600" />
-                    Dernières demandes
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">Activité récente du système</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FiActivity className="w-4 h-4" />
-                  <span>{filteredRequests.length} demande(s)</span>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="space-y-3">
-                {filteredRequests.slice(0, 5).map((req, index) => (
-                  <div
-                    key={req.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-mono font-semibold">
-                        {req.reference}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{req.workflowType}</p>
-                        <p className="text-xs text-gray-500">
-                          {req.createdAt ? new Date(req.createdAt).toLocaleDateString('fr-FR') : '-'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${getStatusColor(req.status)}`}>
-                      {getStatusIcon(req.status)}
-                      <span className="text-sm font-medium capitalize">
-                        {getStatusLabel(req.status)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Statuts */}
+      <div className="grid grid-cols-2 overflow-hidden rounded-[1.1rem] border border-[var(--line)] bg-[var(--surface)] lg:grid-cols-4">
+        {statCards.slice(4).map((card, index) => (
+          <div key={card.title} className={`px-5 py-5 ${index > 0 ? 'lg:border-l' : ''} ${index % 2 === 1 ? 'border-l' : ''} ${index > 1 ? 'border-t lg:border-t-0' : ''} border-[var(--line-soft)]`}>
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: statusDots[card.tone] }} />
+              {card.title}
+            </p>
+            <p className="mt-2 font-['Inter_Tight'] text-3xl font-light tabular-nums tracking-[-0.03em] text-[var(--ink)]">{card.value}</p>
           </div>
+        ))}
+      </div>
 
-          {/* Enhanced Recent Users */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <FiUsers className="w-5 h-5 text-green-600" />
-                    Derniers utilisateurs
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">Nouveaux membres inscrits</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FiUsers className="w-4 h-4" />
-                  <span>{recentUsers.length} utilisateur(s)</span>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="space-y-3">
-                {recentUsers.map((user, index) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
-                        {user.fullName?.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{user.fullName}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs ${getRoleColor(user.role)}`}>
-                        {getRoleIcon(user.role)}
-                        <span className="font-medium capitalize">{user.role}</span>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteUser(user)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Supprimer l'utilisateur"
-                      >
-                        <FiUserX className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Graphiques */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="ui-card p-6 xl:col-span-2">
+          <p className="ui-stat-label">Évolution des demandes</p>
+          <p className="mt-2 font-['Inter_Tight'] text-3xl font-light tracking-[-0.03em] text-[var(--ink)]">
+            {allRequests.length} <span className="text-base text-[var(--muted)]">demandes créées</span>
+          </p>
+          <div className="mt-6 h-72">
+            <Line
+              data={styledLineData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false },
+                  tooltip: { backgroundColor: '#1b1b1a', padding: 10, cornerRadius: 10, displayColors: false },
+                },
+                scales: {
+                  y: { beginAtZero: true, ticks: { color: axisColor, precision: 0 }, border: { display: false }, grid: { color: gridColor } },
+                  x: { ticks: { color: axisColor }, border: { display: false }, grid: { display: false } },
+                },
+              }}
+            />
           </div>
         </div>
 
-        {/* Enhanced Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FiBarChart2 className="w-5 h-5 text-blue-600" />
-                Évolution des demandes
-              </h2>
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <FiMoreVertical className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="h-64">
-              <Line 
-                data={lineData} 
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      display: false
-                    }
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                      }
-                    },
-                    x: {
-                      grid: {
-                        display: false
-                      }
-                    }
-                  }
-                }}
-              />
+        <div className="ui-card flex flex-col p-6">
+          <p className="ui-stat-label">Répartition des statuts</p>
+          <div className="relative mx-auto mt-4 h-52 w-52">
+            <Doughnut
+              data={styledDoughnutData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '74%',
+                plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1b1b1a', padding: 10, cornerRadius: 10 } },
+              }}
+            />
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-['Inter_Tight'] text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)]">{doughnutTotal}</span>
+              <span className="text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">demandes</span>
             </div>
           </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FiPieChart className="w-5 h-5 text-green-600" />
-                Répartition des statuts
-              </h2>
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <FiMoreVertical className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="h-64">
-              <Doughnut 
-                data={doughnutData} 
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'bottom'
-                    }
-                  }
-                }}
-              />
-            </div>
-          </div>
+          <ul className="mt-6 space-y-2.5">
+            {doughnutLegend.map((item) => (
+              <li key={item.label} className="flex items-center gap-3 text-sm">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="text-[var(--ink-2)]">{item.label}</span>
+                <span className="ml-auto tabular-nums text-[var(--ink)]">{item.value}</span>
+                <span className="w-10 text-right text-xs tabular-nums text-[var(--muted)]">
+                  {doughnutTotal ? Math.round((item.value / doughnutTotal) * 100) : 0}%
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
+      </div>
 
-        {/* Quick Actions Section */}
-        <div className="mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
-          <div className="flex items-center justify-between">
+      {/* Activité récente */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <div className="ui-card overflow-hidden">
+          <div className="flex items-end justify-between border-b border-[var(--line-soft)] px-6 py-5">
             <div>
-              <h3 className="text-xl font-bold mb-2">Actions rapides</h3>
-              <p className="text-blue-100">Gérez efficacement votre système</p>
+              <p className="ui-stat-label">Activité</p>
+              <h2 className="mt-1 font-['Inter_Tight'] text-2xl font-light tracking-[-0.03em] text-[var(--ink)]">Dernières demandes</h2>
             </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => navigate('/admin/settings')}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <FiSettings className="w-4 h-4" />
-                Paramètres
-              </button>
-              <button 
-                onClick={() => navigate('/admin/users')}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <FiUsers className="w-4 h-4" />
-                Gérer les utilisateurs
-              </button>
-              <button 
-                onClick={() => navigate('/admin/requests')}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <FiFileText className="w-4 h-4" />
-                Voir toutes les demandes
-              </button>
-            </div>
+            <span className="text-xs text-[var(--muted)]">{filteredRequests.length} demande(s)</span>
           </div>
+          {filteredRequests.length === 0 ? (
+            <div className="ui-empty py-10"><p className="ui-empty-text">Aucune demande récente</p></div>
+          ) : (
+            <ul className="divide-y divide-[var(--line-soft)]">
+              {filteredRequests.slice(0, 5).map((req, index) => (
+                <li key={req.id}>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/requests/${req.id}`)}
+                    className="group flex w-full items-center gap-4 px-6 py-4 text-left transition-colors hover:bg-[var(--surface-2)]"
+                  >
+                    <span className="font-['Inter_Tight'] text-xs tabular-nums text-[var(--muted)]">{String(index + 1).padStart(2, '0')}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-[var(--ink)]">{typeLabels[req.workflowType] || req.workflowType}</p>
+                      <p className="mt-0.5 text-xs text-[var(--muted)]">
+                        <span className="font-mono">{req.reference}</span> · {req.createdAt ? new Date(req.createdAt).toLocaleDateString('fr-FR') : '-'}
+                      </p>
+                    </div>
+                    <span className={`ui-badge ${getStatusColor(req.status)}`}>{getStatusLabel(req.status)}</span>
+                    <FiArrowUpRight className="h-4 w-4 text-[var(--muted)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-500" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="ui-card overflow-hidden">
+          <div className="flex items-end justify-between border-b border-[var(--line-soft)] px-6 py-5">
+            <div>
+              <p className="ui-stat-label">Équipe</p>
+              <h2 className="mt-1 font-['Inter_Tight'] text-2xl font-light tracking-[-0.03em] text-[var(--ink)]">Derniers utilisateurs</h2>
+            </div>
+            <span className="text-xs text-[var(--muted)]">{recentUsers.length} utilisateur(s)</span>
+          </div>
+          <ul className="divide-y divide-[var(--line-soft)]">
+            {recentUsers.map((user) => (
+              <li key={user.id} className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-[var(--surface-2)]">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#1b1b1a] text-sm font-medium text-white">
+                  {user.fullName?.charAt(0).toUpperCase() || 'U'}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-[var(--ink)]">{user.fullName}</p>
+                  <p className="truncate text-xs text-[var(--muted)]">{user.email}</p>
+                </div>
+                <span className={`ui-badge ${getRoleColor(user.role)}`}>{user.role}</span>
+                <button
+                  onClick={() => handleDeleteUser(user)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] opacity-60 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+                  title="Supprimer l'utilisateur"
+                >
+                  <FiUserX className="h-4 w-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Actions rapides */}
+      <div>
+        <p className="mb-3 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+          <span className="h-px w-6 bg-brand-500" /> Actions rapides
+        </p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {quickActions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.label}
+                onClick={() => navigate(action.to)}
+                className={`group relative flex items-end justify-between overflow-hidden rounded-[1.1rem] p-6 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                  index === 1
+                    ? 'bg-brand-500 text-white hover:shadow-[0_24px_44px_-22px_rgba(232,89,26,0.8)]'
+                    : 'border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink-2)]'
+                }`}
+              >
+                <div>
+                  <Icon className={`h-5 w-5 ${index === 1 ? 'text-white' : 'text-brand-500'}`} />
+                  <p className="mt-8 font-['Inter_Tight'] text-xl font-light tracking-[-0.02em]">{action.label}</p>
+                  <p className={`mt-1 text-xs ${index === 1 ? 'text-white/75' : 'text-[var(--muted)]'}`}>{action.hint}</p>
+                </div>
+                <span
+                  className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:rotate-45 ${
+                    index === 1 ? 'bg-white text-brand-500' : 'bg-[var(--ink)] text-[var(--app-bg)]'
+                  }`}
+                >
+                  <FiArrowUpRight className="h-4 w-4" />
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

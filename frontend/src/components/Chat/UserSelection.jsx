@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiUserPlus, FiX, FiMessageSquare } from 'react-icons/fi';
+import { FiSearch, FiUserPlus, FiX, FiMessageSquare, FiCheck } from 'react-icons/fi';
 import api from '../services/api';
 
 const UserSelection = ({ onClose, onSelectUser, mode = 'message' }) => {
@@ -14,7 +14,7 @@ const UserSelection = ({ onClose, onSelectUser, mode = 'message' }) => {
   }, []);
 
   useEffect(() => {
-    const filtered = users.filter(user => 
+    const filtered = users.filter(user =>
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -64,7 +64,7 @@ const UserSelection = ({ onClose, onSelectUser, mode = 'message' }) => {
         });
         alert('Demande d\'ami envoyée!');
         // Update user list to show they've been sent a request
-        setUsers(users.map(u => 
+        setUsers(users.map(u =>
           u.id === user.id ? { ...u, requestSent: true } : u
         ));
       } catch (error) {
@@ -76,81 +76,84 @@ const UserSelection = ({ onClose, onSelectUser, mode = 'message' }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] flex flex-col m-auto">
+    <div className="ui-modal-backdrop">
+      <div className="ui-modal max-w-md">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {mode === 'message' ? 'Nouveau message' : 'Ajouter un ami'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <FiX size={20} />
+        <div className="ui-modal-header">
+          <div className="ui-modal-title">
+            <span className={`ui-icon-tile h-9 w-9 ${mode === 'message' ? 'ui-tile-brand' : 'ui-tile-green'}`}>
+              {mode === 'message' ? <FiMessageSquare size={18} /> : <FiUserPlus size={18} />}
+            </span>
+            <h2>{mode === 'message' ? 'Nouveau message' : 'Ajouter un ami'}</h2>
+          </div>
+          <button onClick={onClose} className="ui-icon-btn">
+            <FiX size={18} />
           </button>
         </div>
 
         {/* Search */}
         <div className="p-4">
           <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
               placeholder={mode === 'message' ? 'Rechercher un ami...' : 'Rechercher un utilisateur...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="ui-input ui-input-icon"
             />
           </div>
         </div>
 
         {/* Users List */}
-        <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <div className="flex-1 overflow-y-auto px-3 pb-3">
           {loading ? (
-            <div className="space-y-3">
+            <div className="space-y-1">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="flex items-center space-x-3 p-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    </div>
+                <div key={i} className="flex items-center gap-3 p-3">
+                  <div className="ui-skeleton h-10 w-10 rounded-full"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="ui-skeleton h-3.5 w-3/4"></div>
+                    <div className="ui-skeleton h-3 w-1/2"></div>
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredUsers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              {searchTerm ? 'Aucun ami trouvé' : mode === 'message' ? 'Aucun ami disponible' : 'Aucun utilisateur disponible'}
+            <div className="ui-empty py-10">
+              <div className="ui-empty-icon">
+                <FiSearch size={22} />
+              </div>
+              <p className="ui-empty-text">
+                {searchTerm ? 'Aucun ami trouvé' : mode === 'message' ? 'Aucun ami disponible' : 'Aucun utilisateur disponible'}
+              </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {filteredUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 font-medium">
-                        {user.fullName.charAt(0).toUpperCase()}
-                      </span>
+                <div key={user.id} className="ui-row px-3 py-2.5">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="ui-avatar h-10 w-10 bg-stone-800 text-sm">
+                      {user.fullName.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{user.fullName}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
-                      <p className="text-xs text-gray-400">{user.department}</p>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{user.fullName}</p>
+                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
+                      {user.department && (
+                        <span className="ui-badge ui-badge-slate mt-1 text-[10px]">{user.department}</span>
+                      )}
                     </div>
                   </div>
                   <button
                     onClick={() => handleSelectUser(user)}
                     disabled={sending || user.requestSent}
-                    className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                    className={`ui-btn ui-btn-sm ${user.requestSent ? 'ui-btn-secondary' : 'ui-btn-primary'}`}
                   >
                     {user.requestSent ? (
-                      'Envoyé'
+                      <>
+                        <FiCheck size={14} />
+                        Envoyé
+                      </>
                     ) : mode === 'message' ? (
                       <>
                         <FiMessageSquare size={14} />

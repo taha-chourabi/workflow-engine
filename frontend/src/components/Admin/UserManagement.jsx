@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUsers, activateUser, rejectUser } from '../services/adminService';
 import { toast } from 'react-toastify';
-import { FiUsers, FiUserCheck, FiUserX, FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiSearch, FiFilter, FiRefreshCw, FiSettings, FiShield, FiEdit, FiTrash2, FiMail, FiBuilding, FiLayers, FiMoreVertical, FiDownload, FiCalendar, FiTrendingUp, FiActivity, FiUserPlus, FiUserMinus } from 'react-icons/fi';
+import { FiUsers, FiUserCheck, FiUserX, FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiSearch, FiFilter, FiRefreshCw, FiSettings, FiShield, FiEdit, FiTrash2, FiMail, FiBuilding, FiLayers, FiMoreVertical, FiDownload, FiCalendar, FiTrendingUp, FiActivity, FiUserPlus, FiUserMinus, FiChevronDown } from 'react-icons/fi';
 
 const ROLE_OPTIONS = [
   'EMPLOYEE',
@@ -39,37 +39,37 @@ const UserManagement = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'approved': return <FiCheckCircle className="w-4 h-4" />;
-      case 'rejected': return <FiXCircle className="w-4 h-4" />;
-      case 'pending': return <FiClock className="w-4 h-4" />;
-      default: return <FiAlertCircle className="w-4 h-4" />;
+      case 'approved': return <FiCheckCircle className="w-3 h-3" />;
+      case 'rejected': return <FiXCircle className="w-3 h-3" />;
+      case 'pending': return <FiClock className="w-3 h-3" />;
+      default: return <FiAlertCircle className="w-3 h-3" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'approved': return 'bg-green-50 text-green-700 border-green-200';
-      case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-      case 'pending': return 'bg-violet-50 text-violet-700 border-violet-200';
-      default: return 'bg-slate-50 text-slate-700 border-slate-200';
+      case 'approved': return 'ui-badge-green';
+      case 'rejected': return 'ui-badge-red';
+      case 'pending': return 'ui-badge-violet';
+      default: return 'ui-badge-slate';
     }
   };
 
   const getRoleIcon = (role) => {
     switch (role) {
-      case 'ADMIN': return <FiShield className="w-4 h-4" />;
-      case 'DG': return <FiSettings className="w-4 h-4" />;
-      case 'DSI': return <FiActivity className="w-4 h-4" />;
-      default: return <FiUsers className="w-4 h-4" />;
+      case 'ADMIN': return <FiShield className="w-3 h-3" />;
+      case 'DG': return <FiSettings className="w-3 h-3" />;
+      case 'DSI': return <FiActivity className="w-3 h-3" />;
+      default: return <FiUsers className="w-3 h-3" />;
     }
   };
 
   const getRoleColor = (role) => {
     switch (role) {
-      case 'ADMIN': return 'bg-red-50 text-red-700 border-red-200';
-      case 'DG': return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'DSI': return 'bg-blue-50 text-blue-700 border-blue-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'ADMIN': return 'ui-badge-red';
+      case 'DG': return 'ui-badge-violet';
+      case 'DSI': return 'ui-badge-blue';
+      default: return 'ui-badge-slate';
     }
   };
 
@@ -189,11 +189,15 @@ const UserManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <p className="text-gray-600 text-lg">Chargement des utilisateurs...</p>
+      <div className="ui-page">
+        <div className="space-y-2">
+          <div className="ui-skeleton h-4 w-28"></div>
+          <div className="ui-skeleton h-8 w-72"></div>
         </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => <div key={i} className="ui-skeleton h-28 rounded-2xl"></div>)}
+        </div>
+        <div className="ui-skeleton h-64 rounded-2xl"></div>
       </div>
     );
   }
@@ -204,316 +208,285 @@ const UserManagement = () => {
   const approvedCount = allUsers.filter(user => user.registrationStatus === 'approved').length;
 
   const statCards = [
-    { title: 'Inscriptions en attente', value: pendingCount, icon: <FiClock className="w-6 h-6" />, color: 'violet', trend: '+2' },
-    { title: 'Comptes actifs', value: activeCount, icon: <FiUserCheck className="w-6 h-6" />, color: 'green', trend: '+5' },
-    { title: 'Comptes inactifs', value: inactiveCount, icon: <FiUserX className="w-6 h-6" />, color: 'red', trend: '-1' },
-    { title: 'Total utilisateurs', value: allUsers.length, icon: <FiUsers className="w-6 h-6" />, color: 'blue', trend: '+3' },
+    { title: 'Inscriptions en attente', value: pendingCount, icon: <FiClock className="w-5 h-5" />, color: 'violet', trend: '+2' },
+    { title: 'Comptes actifs', value: activeCount, icon: <FiUserCheck className="w-5 h-5" />, color: 'green', trend: '+5' },
+    { title: 'Comptes inactifs', value: inactiveCount, icon: <FiUserX className="w-5 h-5" />, color: 'red', trend: '-1' },
+    { title: 'Total utilisateurs', value: allUsers.length, icon: <FiUsers className="w-5 h-5" />, color: 'blue', trend: '+3' },
   ];
 
+  const darkField =
+    '!h-10 rounded-full border border-white/15 !bg-white/[0.06] !text-white outline-none transition placeholder:text-stone-400 hover:!bg-white/10 focus:border-white/40';
+  const lightField =
+    'h-10 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 text-sm text-[var(--ink)] outline-none transition focus:border-[var(--ink-2)] focus:ring-4 focus:ring-brand-500/10';
+
+  const registrationLabel = (status) =>
+    status === 'approved' ? 'Approuvé' : status === 'pending' ? 'En attente' : 'Rejeté';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Gestion des Utilisateurs
-              </h1>
-              <p className="text-gray-600 mt-1">Administration complète des comptes utilisateurs</p>
+    <div className="ui-page">
+      {/* Bandeau */}
+      <div className="relative overflow-hidden rounded-[1.5rem] bg-[#1b1b1a] px-6 py-8 text-white sm:px-10 sm:py-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(232,89,26,0.45),transparent_65%)] blur-2xl" />
+
+        <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
+              <span className="h-px w-6 bg-brand-500" />
+              Administration
+            </p>
+            <h1 className="mt-5 font-['Inter_Tight'] text-5xl font-extralight leading-none tracking-[-0.045em] sm:text-6xl">
+              Utilisateurs
+            </h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <FiSearch className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <input
+                type="text"
+                placeholder="Nom ou e-mail..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`${darkField} w-56 pl-10 pr-4 text-sm`}
+              />
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-              <div className="relative flex-shrink-0">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Rechercher..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all flex-shrink-0"
-              >
-                <option value="all">Tous les statuts</option>
-                <option value="active">Actifs</option>
-                <option value="inactive">Inactifs</option>
-                <option value="pending">En attente</option>
+            <div className="relative">
+              <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className={`${darkField} appearance-none pl-4 pr-9 text-sm`}>
+                <option value="all" className="text-[#1b1b1a]">Tous les statuts</option>
+                <option value="active" className="text-[#1b1b1a]">Actifs</option>
+                <option value="inactive" className="text-[#1b1b1a]">Inactifs</option>
+                <option value="pending" className="text-[#1b1b1a]">En attente</option>
               </select>
-              <select
-                value={filterRole}
-                onChange={(e) => setFilterRole(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all flex-shrink-0"
-              >
-                <option value="all">Tous les rôles</option>
+              <FiChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            </div>
+            <div className="relative">
+              <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className={`${darkField} appearance-none pl-4 pr-9 text-sm`}>
+                <option value="all" className="text-[#1b1b1a]">Tous les rôles</option>
                 {ROLE_OPTIONS.map(role => (
-                  <option key={role} value={role}>{role}</option>
+                  <option key={role} value={role} className="text-[#1b1b1a]">{role}</option>
                 ))}
               </select>
-              <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 flex-shrink-0 ${
-                  autoRefresh 
-                    ? 'bg-green-50 text-green-700 border-green-200' 
-                    : 'bg-gray-50 text-gray-700 border-gray-200'
-                }`}
-              >
-                <FiRefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-                Auto
-              </button>
+              <FiChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             </div>
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm text-stone-200 transition hover:bg-white/15"
+              title="Actualisation automatique"
+            >
+              <span className={`h-2 w-2 rounded-full ${autoRefresh ? 'animate-pulse bg-emerald-400' : 'bg-stone-500'}`} />
+              Auto
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="relative mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 lg:grid-cols-4">
           {statCards.map((card, index) => (
-            <div
-              key={card.title}
-              className={`dash-stat-card dash-stat-${card.color} animate-fadeIn hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className={`p-2 rounded-lg bg-white/50`}>
-                  {card.icon}
-                </div>
-                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                  card.trend.startsWith('+') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
-                  {card.trend}
-                </span>
-              </div>
-              <h3 className="dash-stat-title">{card.title}</h3>
-              <p className="dash-stat-value">{card.value}</p>
+            <div key={card.title} className="bg-[#1b1b1a]/95 px-5 py-5">
+              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-stone-500 [&>svg]:h-3 [&>svg]:w-3">
+                {card.icon} {card.title}
+              </p>
+              <p className={`mt-3 font-['Inter_Tight'] text-4xl font-extralight tabular-nums tracking-[-0.04em] sm:text-5xl ${index === 0 && card.value > 0 ? 'text-brand-400' : ''}`}>
+                {card.value}
+              </p>
             </div>
           ))}
         </div>
-
-        {/* Pending Users Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow mb-8">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <FiUserPlus className="w-5 h-5 text-violet-600" />
-                  Inscriptions en attente de validation
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">Nouveaux utilisateurs à approuver</p>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <FiClock className="w-4 h-4" />
-                <span>{filteredPendingUsers.length} en attente</span>
-              </div>
-            </div>
-          </div>
-          <div className="p-6">
-            {filteredPendingUsers.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <FiUserCheck className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucune inscription en attente</h3>
-                <p className="text-gray-600">Tous les utilisateurs ont été traités</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredPendingUsers.map((user, index) => (
-                  <div
-                    key={user.id}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:bg-gray-100 transition-colors animate-fadeIn"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {user.fullName?.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-gray-900">{user.fullName}</h3>
-                          <div className="bg-violet-100 text-violet-700 px-2 py-1 rounded-full text-xs font-semibold">
-                            En attente
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
-                          <FiMail className="w-4 h-4" />
-                          {user.email}
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Département</label>
-                            <input
-                              type="text"
-                              value={activationDrafts[user.id]?.department || ''}
-                              onChange={(e) => updateDraft(user.id, 'department', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              placeholder="Ex: IT, RH..."
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Niveau hiérarchique</label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={activationDrafts[user.id]?.hierarchyLevel || 1}
-                              onChange={(e) => updateDraft(user.id, 'hierarchyLevel', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Rôle</label>
-                            <select
-                              value={activationDrafts[user.id]?.role || 'EMPLOYEE'}
-                              onChange={(e) => updateDraft(user.id, 'role', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            >
-                              {ROLE_OPTIONS.map((role) => (
-                                <option key={role} value={role}>{role}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="flex items-end gap-2">
-                            <button
-                              onClick={() => handleActivate(user.id)}
-                              className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-1 text-sm"
-                            >
-                              <FiCheckCircle className="w-4 h-4" />
-                              Activer
-                            </button>
-                            <button
-                              onClick={() => handleReject(user.id)}
-                              className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-1 text-sm"
-                            >
-                              <FiXCircle className="w-4 h-4" />
-                              Refuser
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* All Users Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <FiUsers className="w-5 h-5 text-blue-600" />
-                  Tous les utilisateurs
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">Liste complète des comptes utilisateurs</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setShowBulkActions(!showBulkActions)}
-                  className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm"
-                >
-                  <FiSettings className="w-4 h-4" />
-                  Actions
-                </button>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FiUsers className="w-4 h-4" />
-                  <span>{filteredAllUsers.length} utilisateur(s)</span>
-                </div>
-              </div>
-            </div>
-            {showBulkActions && selectedUsers.length > 0 && (
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-blue-700">{selectedUsers.length} utilisateur(s) sélectionné(s)</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={bulkActivate}
-                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
-                    >
-                      Activer tout
-                    </button>
-                    <button
-                      onClick={bulkReject}
-                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
-                    >
-                      Refuser tout
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="p-6">
-            {filteredAllUsers.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <FiUsers className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun utilisateur trouvé</h3>
-                <p className="text-gray-600">Les utilisateurs apparaîtront ici une fois inscrits</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredAllUsers.map((user, index) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors animate-fadeIn"
-                    style={{ animationDelay: `${index * 30}ms` }}
-                  >
-                    <div className="flex items-center gap-4">
-                      {showBulkActions && (
-                        <input
-                          type="checkbox"
-                          checked={selectedUsers.includes(user.id)}
-                          onChange={() => toggleUserSelection(user.id)}
-                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                      )}
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {user.fullName?.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{user.fullName}</h3>
-                        <p className="text-sm text-gray-600">{user.email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600">{user.department || '-'}</p>
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs ${getRoleColor(user.role)}`}>
-                          {getRoleIcon(user.role)}
-                          <span className="font-medium">{user.role}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs ${
-                          user.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
-                        }`}>
-                          {user.isActive ? <FiUserCheck className="w-3 h-3" /> : <FiUserX className="w-3 h-3" />}
-                          <span className="font-medium">{user.isActive ? 'Actif' : 'Inactif'}</span>
-                        </div>
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs ${getStatusColor(user.registrationStatus)}`}>
-                          {getStatusIcon(user.registrationStatus)}
-                          <span className="font-medium capitalize">
-                            {user.registrationStatus === 'approved' ? 'Approuvé' :
-                             user.registrationStatus === 'pending' ? 'En attente' : 'Rejeté'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
+
+      {/* Inscriptions en attente */}
+      <section>
+        <div className="mb-4 flex items-end justify-between border-b border-[var(--line)] pb-3">
+          <div>
+            <span className="ui-eyebrow">Validation</span>
+            <h2 className="mt-2 font-['Inter_Tight'] text-2xl font-light tracking-[-0.03em] text-[var(--ink)]">Inscriptions en attente</h2>
+          </div>
+          <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${filteredPendingUsers.length ? 'bg-brand-500 text-white' : 'border border-[var(--line)] text-[var(--muted)]'}`}>
+            <FiClock className="h-3 w-3" /> {filteredPendingUsers.length} en attente
+          </span>
+        </div>
+
+        {filteredPendingUsers.length === 0 ? (
+          <div className="flex items-center gap-4 rounded-[1.1rem] border border-dashed border-[var(--line)] px-6 py-5">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] text-emerald-600">
+              <FiUserCheck className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="text-sm text-[var(--ink)]">Aucune inscription en attente</p>
+              <p className="text-xs text-[var(--muted)]">Tous les utilisateurs ont été traités</p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
+            {filteredPendingUsers.map((user, index) => (
+              <div
+                key={user.id}
+                className="relative overflow-hidden rounded-[1.1rem] border border-[var(--line)] bg-[var(--surface)] animate-fade-up"
+                style={{ animationDelay: `${index * 40}ms` }}
+              >
+                <span className="absolute inset-y-0 left-0 w-1 bg-brand-500" />
+                <div className="flex items-center gap-4 border-b border-[var(--line-soft)] px-6 py-4">
+                  <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#1b1b1a] text-sm font-medium text-white">
+                    {user.fullName?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-['Inter_Tight'] text-lg font-light tracking-[-0.02em] text-[var(--ink)]">{user.fullName}</p>
+                    <p className="flex items-center gap-1.5 truncate text-xs text-[var(--muted)]">
+                      <FiMail className="h-3 w-3 flex-shrink-0" /> {user.email}
+                    </p>
+                  </div>
+                  <span className="ui-badge ui-badge-brand">Nouveau</span>
+                </div>
+                <div className="grid grid-cols-1 gap-3 px-6 py-4 sm:grid-cols-3">
+                  <div>
+                    <label className="ui-label">Département</label>
+                    <input
+                      type="text"
+                      value={activationDrafts[user.id]?.department || ''}
+                      onChange={(e) => updateDraft(user.id, 'department', e.target.value)}
+                      className={lightField}
+                      placeholder="Ex: IT, RH..."
+                    />
+                  </div>
+                  <div>
+                    <label className="ui-label">Niveau hiérarchique</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={activationDrafts[user.id]?.hierarchyLevel || 1}
+                      onChange={(e) => updateDraft(user.id, 'hierarchyLevel', e.target.value)}
+                      className={lightField}
+                    />
+                  </div>
+                  <div>
+                    <label className="ui-label">Rôle</label>
+                    <div className="relative">
+                      <select
+                        value={activationDrafts[user.id]?.role || 'EMPLOYEE'}
+                        onChange={(e) => updateDraft(user.id, 'role', e.target.value)}
+                        className={`${lightField} appearance-none pr-9`}
+                      >
+                        {ROLE_OPTIONS.map((role) => (
+                          <option key={role} value={role}>{role}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 px-6 pb-5">
+                  <button
+                    onClick={() => handleReject(user.id)}
+                    className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--line)] px-4 text-sm text-[var(--ink-2)] transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <FiXCircle className="h-4 w-4" />
+                    Refuser
+                  </button>
+                  <button
+                    onClick={() => handleActivate(user.id)}
+                    className="group inline-flex h-10 items-center gap-3 rounded-full bg-[var(--ink)] pl-5 pr-1.5 text-sm font-medium text-[var(--app-bg)] transition-colors hover:bg-brand-500 hover:text-white"
+                  >
+                    Activer le compte
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--app-bg)] text-[var(--ink)]">
+                      <FiCheckCircle className="h-4 w-4" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Tous les utilisateurs */}
+      <section className="ui-card overflow-hidden">
+        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--line-soft)] px-6 py-5">
+          <div>
+            <p className="ui-stat-label">Annuaire</p>
+            <h2 className="mt-1 font-['Inter_Tight'] text-2xl font-light tracking-[-0.03em] text-[var(--ink)]">Tous les utilisateurs</h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[var(--muted)]">{filteredAllUsers.length} utilisateur(s)</span>
+            <button
+              onClick={() => setShowBulkActions(!showBulkActions)}
+              className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-xs font-medium transition ${
+                showBulkActions ? 'bg-[var(--ink)] text-[var(--app-bg)]' : 'border border-[var(--line)] text-[var(--ink-2)] hover:border-[var(--ink-2)]'
+              }`}
+            >
+              <FiSettings className="h-3.5 w-3.5" />
+              Actions groupées
+            </button>
+          </div>
+        </div>
+
+        {showBulkActions && selectedUsers.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line-soft)] bg-[var(--surface-2)] px-6 py-3">
+            <span className="text-sm text-[var(--ink)]">{selectedUsers.length} utilisateur(s) sélectionné(s)</span>
+            <div className="flex gap-2">
+              <button onClick={bulkActivate} className="ui-btn ui-btn-sm ui-btn-primary">Activer tout</button>
+              <button onClick={bulkReject} className="ui-btn ui-btn-sm ui-btn-danger-soft">Refuser tout</button>
+            </div>
+          </div>
+        )}
+
+        {filteredAllUsers.length === 0 ? (
+          <div className="ui-empty">
+            <div className="ui-empty-icon"><FiUsers className="h-6 w-6" /></div>
+            <h3 className="ui-empty-title">Aucun utilisateur trouvé</h3>
+            <p className="ui-empty-text">Les utilisateurs apparaîtront ici une fois inscrits</p>
+          </div>
+        ) : (
+          <>
+            <div className="hidden grid-cols-[2.2fr_1fr_1.2fr_0.8fr_0.9fr] gap-4 border-b border-[var(--line-soft)] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)] lg:grid">
+              <span>Utilisateur</span>
+              <span>Département</span>
+              <span>Rôle</span>
+              <span>Compte</span>
+              <span>Inscription</span>
+            </div>
+            <ul className="divide-y divide-[var(--line-soft)]">
+              {filteredAllUsers.map((user, index) => (
+                <li
+                  key={user.id}
+                  className="grid grid-cols-1 items-center gap-3 px-6 py-4 transition-colors hover:bg-[var(--surface-2)] lg:grid-cols-[2.2fr_1fr_1.2fr_0.8fr_0.9fr] lg:gap-4 animate-fade-up"
+                  style={{ animationDelay: `${Math.min(index, 12) * 25}ms` }}
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    {showBulkActions && (
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => toggleUserSelection(user.id)}
+                        className="h-4 w-4 rounded border-[var(--line)] accent-[#e8591a]"
+                      />
+                    )}
+                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#1b1b1a] text-sm font-medium text-white">
+                      {user.fullName?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm text-[var(--ink)]">{user.fullName}</p>
+                      <p className="truncate text-xs text-[var(--muted)]">{user.email}</p>
+                    </div>
+                  </div>
+                  <span className="truncate text-sm text-[var(--ink-2)]">{user.department || '-'}</span>
+                  <span>
+                    <span className={`ui-badge ${getRoleColor(user.role)}`}>{user.role}</span>
+                  </span>
+                  <span className="flex items-center gap-2 text-sm text-[var(--ink-2)]">
+                    <span className={`h-2 w-2 rounded-full ${user.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    {user.isActive ? 'Actif' : 'Inactif'}
+                  </span>
+                  <span>
+                    <span className={`ui-badge ${getStatusColor(user.registrationStatus)}`}>{registrationLabel(user.registrationStatus)}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </section>
     </div>
   );
 };

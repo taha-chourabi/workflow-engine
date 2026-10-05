@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mysql",
+      "runtimeExecutable": "C:\\xampp\\mysql\\bin\\mysqld.exe",
+      "runtimeArgs": ["--defaults-file=C:\\xampp\\mysql\\bin\\my.ini", "--standalone"],
+      "port": 3306
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "backend", "run", "dev"],
+      "port": 5000
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "start"],
+      "port": 3000
+    }
+  ]
+}

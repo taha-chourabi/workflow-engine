@@ -149,85 +149,96 @@ const ChatWindow = () => {
 
   if (loading) {
     return (
-      <div className="h-screen flex flex-col bg-white">
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-pulse space-y-4 w-full max-w-2xl px-6">
-            <div className="h-16 bg-gray-200 rounded-lg"></div>
-            <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className={`h-12 bg-gray-200 rounded-lg ${i % 2 === 0 ? 'ml-auto w-2/3' : 'w-2/3'}`}></div>
-              ))}
-            </div>
+      <div className="ui-card mx-auto flex h-[calc(100vh-8rem)] w-full max-w-5xl flex-col overflow-hidden">
+        <div className="flex items-center gap-3 border-b border-slate-100 p-4 dark:border-slate-800">
+          <div className="ui-skeleton h-10 w-10 rounded-full"></div>
+          <div className="space-y-2">
+            <div className="ui-skeleton h-4 w-40"></div>
+            <div className="ui-skeleton h-3 w-24"></div>
           </div>
+        </div>
+        <div className="flex-1 space-y-3 p-6">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className={`ui-skeleton h-11 rounded-2xl ${i % 2 === 0 ? 'ml-auto w-1/2' : 'w-2/3'}`}></div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="ui-card mx-auto flex h-[calc(100vh-8rem)] w-full max-w-5xl flex-col overflow-hidden animate-fade-up">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-white/80 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
+        <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => navigate('/chats')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="ui-icon-btn"
+            title="Retour"
           >
-            <FiArrowLeft size={20} className="text-gray-600" />
+            <FiArrowLeft size={18} />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="relative">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+              className="ui-avatar h-10 w-10 text-sm"
               style={{ backgroundColor: getAvatarColor(getRecipientName()) }}
             >
               {getRecipientName().charAt(0).toUpperCase()}
             </div>
-            <div>
-              <h2 className="font-semibold text-gray-900 text-lg">
-                {getRecipientName()}
-              </h2>
-              {getRecipientEmail() && (
-                <p className="text-xs text-gray-500">
-                  {getRecipientEmail()}
-                </p>
-              )}
-            </div>
+          </div>
+          <div className="min-w-0">
+            <h2 className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+              {getRecipientName()}
+            </h2>
+            {getRecipientEmail() ? (
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                {getRecipientEmail()}
+              </p>
+            ) : chatInfo?.isGroup ? (
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Groupe · {getParticipants().length} membre(s)
+              </p>
+            ) : null}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={deleteChat} className="p-2 hover:bg-red-50 rounded-lg transition-colors">
-            <FiTrash2 size={18} className="text-red-600" />
+        <div className="flex items-center gap-1">
+          <button className="ui-icon-btn" title="Appel">
+            <FiPhone size={17} />
           </button>
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <FiPhone size={18} className="text-gray-600" />
+          <button className="ui-icon-btn" title="Visio">
+            <FiVideo size={17} />
           </button>
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <FiVideo size={18} className="text-gray-600" />
+          <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+          <button onClick={deleteChat} className="ui-icon-btn hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-300" title="Supprimer la conversation">
+            <FiTrash2 size={17} />
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 border-b border-red-200 text-red-700 px-4 py-3">
+        <div className="border-b border-rose-200 bg-rose-50 px-4 py-2.5 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
           {error}
         </div>
       )}
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">
+      <div
+        className="flex-1 space-y-1 overflow-y-auto bg-slate-50/70 px-4 py-5 dark:bg-slate-950/40 sm:px-6"
+        style={{ backgroundImage: 'radial-gradient(var(--app-grid) 1px, transparent 1px)', backgroundSize: '18px 18px' }}
+      >
         {messages.length === 0 ? (
-          <div className="h-full flex items-center justify-center">
+          <div className="flex h-full items-center justify-center">
             <div className="text-center">
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4"
+                className="ui-avatar mx-auto mb-4 h-16 w-16 text-2xl shadow-lifted"
                 style={{ backgroundColor: getAvatarColor(getRecipientName()) }}
               >
                 {getRecipientName().charAt(0).toUpperCase()}
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                 {getRecipientName()}
               </h3>
-              <p className="text-sm text-gray-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 C'est le début de votre conversation
               </p>
             </div>
@@ -238,13 +249,13 @@ const ChatWindow = () => {
             const showAvatar = !isCurrentUser && (index === 0 || String(messages[index - 1]?.senderId) !== String(msg.senderId));
 
             return (
-              <div key={msg.id} className={`flex mb-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex gap-2 max-w-sm lg:max-w-md ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div key={msg.id} className={`group flex ${showAvatar || isCurrentUser ? 'pt-2' : ''} ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex max-w-[80%] gap-2 lg:max-w-md ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
                   {!isCurrentUser && (
                     <div className="flex items-end">
                       {showAvatar ? (
                         <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                          className="ui-avatar h-8 w-8 text-xs"
                           style={{ backgroundColor: getAvatarColor(msg.User?.fullName || 'U') }}
                         >
                           {msg.User?.fullName?.charAt(0).toUpperCase()}
@@ -255,12 +266,15 @@ const ChatWindow = () => {
                     </div>
                   )}
                   <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
-                    <div className="flex items-center gap-2">
+                    {showAvatar && chatInfo?.isGroup && msg.User?.fullName && (
+                      <span className="mb-1 ml-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">{msg.User.fullName}</span>
+                    )}
+                    <div className={`flex items-center gap-1.5 ${isCurrentUser ? 'flex-row-reverse' : ''}`}>
                       <div
-                        className={`px-4 py-2 rounded-2xl break-words ${
+                        className={`break-words px-4 py-2.5 shadow-sm ${
                           isCurrentUser
-                            ? 'bg-blue-500 text-white rounded-br-none'
-                            : 'bg-gray-200 text-gray-900 rounded-bl-none'
+                            ? 'rounded-2xl rounded-br-md bg-stone-900 text-white'
+                            : 'rounded-2xl rounded-bl-md border border-slate-200 bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100'
                         }`}
                       >
                         <p className="text-sm leading-relaxed">{msg.content}</p>
@@ -268,14 +282,14 @@ const ChatWindow = () => {
                       {isCurrentUser && (
                         <button
                           onClick={() => deleteMessage(msg.id)}
-                          className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                          className="rounded-lg p-1 text-slate-400 opacity-0 transition hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100 dark:hover:bg-rose-500/10"
                           aria-label="Supprimer le message"
                         >
-                          <FiTrash2 size={16} />
+                          <FiTrash2 size={14} />
                         </button>
                       )}
                     </div>
-                    <span className={`text-xs text-gray-500 mt-1 ${isCurrentUser ? 'mr-1' : 'ml-1'}`}>
+                    <span className={`mt-1 text-[11px] text-slate-400 ${isCurrentUser ? 'mr-1' : 'ml-1'}`}>
                       {formatTime(msg.createdAt)}
                     </span>
                   </div>
@@ -288,22 +302,25 @@ const ChatWindow = () => {
       </div>
 
       {/* Input Area */}
-      <form onSubmit={sendMessage} className="flex items-center gap-2 p-4 border-t border-gray-200 bg-white">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Écrivez votre message..."
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-          disabled={sending}
-        />
-        <button
-          type="submit"
-          disabled={!text.trim() || sending}
-          className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-        >
-          <FiSend size={18} />
-        </button>
+      <form onSubmit={sendMessage} className="border-t border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1.5 transition focus-within:border-brand-300 focus-within:ring-4 focus-within:ring-brand-500/10 dark:border-slate-700 dark:bg-slate-800">
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Écrivez votre message..."
+            className="flex-1 border-0 !bg-transparent px-3 py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100"
+            disabled={sending}
+          />
+          <button
+            type="submit"
+            disabled={!text.trim() || sending}
+            className="ui-btn ui-btn-primary h-10 w-10 rounded-xl px-0"
+            title="Envoyer"
+          >
+            <FiSend size={17} />
+          </button>
+        </div>
       </form>
     </div>
   );

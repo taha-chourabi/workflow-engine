@@ -42,3 +42,9 @@ export const uploadAttachment = async (id, file) => {
 export const deleteRequest = async (id) => {
   await api.delete(`/requests/${id}`);
 };
+
+// PDF récapitulatif généré à la demande par le serveur (quel que soit l'état de la demande)
+export const downloadRequestPdf = async (id) => {
+  const response = await api.get(`/requests/${id}/pdf`, { responseType: 'blob' });
+  return response.data;
+};
